@@ -1,5 +1,5 @@
 """
-ASGI config for JodernServices project.
+ASGI config for Services project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
