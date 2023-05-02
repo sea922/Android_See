@@ -4,16 +4,18 @@ import random, threading, datetime, traceback, time
 from .products import categoryMapping, priceMapping
 
 MOVE_DATA_SYNCING_TO_BACKGROUND = False
+
+connection = Connector.establishConnection()
     
-def ProcessFetchCartsList(userid):
-    query = "select cartid, totalprice from cart where cartholder = ? and opening = 1"
+def ProcessFetchCartsList(user_id):
+    query = "select cart_id, total_price from cart where cart_holder = %s and opening = 1"
     cursor = Connector.establishConnection().cursor()
-    row = cursor.execute(query, (userid,)).fetchone()
+    row = cursor.execute(query, (user_id,)).fetchone()
     
     if not row:
         cartid = UUID()
-        query = "insert into cart (cartid, cartholder, opening) values (?, ?, 1)"
-        cursor.execute(query, (cartid, userid))
+        query = "insert into cart (cart_id, cart_holder, opening) values (%s, %s, 1)"
+        cursor.execute(query, (cartid, user_id))
         cursor.commit()
         
         return {
@@ -24,7 +26,7 @@ def ProcessFetchCartsList(userid):
     total_price = row[1]
     cartid = row[0]
     
-    query = "select cd.productid, cd.sizeid, cd.quantity, p.title, p.Descriptions, p.Price, p.SexId, p.CategoryId, p.ImageUrl from (select productid, sizeid, quantity from cartdetail c where c.cartid = ?) cd left join product p on cd.productid = p.id"
+    query = "select cd.product_id, cd.size_id, cd.quantity, p.title, p.descriptions, p.price, p.sex_id, p.category_id, p.image_url from (select product_id, size_id, quantity from cart_detail c where c.cart_id = %s) cd left join product p on cd.product_id = p.id"
     rows = cursor.execute(query, (cartid,)).fetchall()
     
     return {
@@ -48,10 +50,10 @@ __backgroundQueue = [] # queries
 __backgroundQueueTMP = []
 __backgroundProcessing = False
 __defaultQueries = [
-    'delete from sharedcartdetails where quantity <= 0',
-    'delete from cartdetail where quantity <= 0',
-    'exec UpdateTotalItems_SharedCart',
-    'exec CounterHacker'
+    'delete from shared_cart_details where quantity <= 0',
+    'delete from cart_detail where quantity <= 0',
+    'call UpdateTotalItems_SharedCart',
+    'call CounterHacker'
 ]
     
 def __background(timeout = 0.2):
@@ -67,16 +69,16 @@ def __background(timeout = 0.2):
                 for query in __backgroundQueue:
                     try:
                         cursor.execute(query[0], query[1])
-                        cursor.commit()
+                        conn.commit()
                     except Exception as e:
                         print(e)
                         traceback.print_exc()
-                        cursor.rollback()
+                        conn.rollback()
                 
                 for query in __defaultQueries:
                     try:
                         cursor.execute(query)
-                        cursor.commit()
+                        conn.commit()
                     except Exception as e:
                         print(f'[ERROR] Background processing failed - {query}')
                         print(e)
@@ -101,11 +103,11 @@ threading.Thread(target = __background, daemon = True).start()
 def __updateTotalPriceBG(cartid):
     # pass the cursor as params due to threading issue
     query = '''
-        update cart set totalprice = (
+        update cart set total_price = (
             select sum(cd.quantity * p.price) as s from ( 
-                select productid, quantity from CartDetail where cartid = ?
-            ) cd left join product p on cd.productid = p.id
-        ) where cartid = ?
+                select product_id, quantity from cart_detail where cart_id = %s
+            ) cd left join product p on cd.product_id = p.id
+        ) where cart_id = %s
     '''
     
     if MOVE_DATA_SYNCING_TO_BACKGROUND:
@@ -114,19 +116,19 @@ def __updateTotalPriceBG(cartid):
     else:
         cursor = Connector.establishConnection().cursor()
         cursor.execute(query, (cartid, cartid))
-        cursor.commit()
+        # cursor.commit()
     
 def __updateSharedCartBG(cartid):
     query = '''
-        update SharedCart set totalprice = (
-            select COALESCE(sum(quantity * Price), 0) from (
+        update shared_cart set total_price = (
+            select COALESCE(sum(quantity * price), 0) from (
                     select *
-                    from SharedCartDetails 
-                    where cartid = ?
-                ) sc join Product p on (p.id = sc.productid)
-        ), numbersofmembers = (
-            select count(*) from SharedCartMember where cartid = ?
-        ) where cartid = ?
+                    from shared_cart_details 
+                    where cart_id = %s
+                ) sc join product p on (p.id = sc.product_id)
+        ), numbers_of_members = (
+            select count(*) from shared_cart_member where cart_id = %s
+        ) where cart_id = %s
     '''
 
     if MOVE_DATA_SYNCING_TO_BACKGROUND:
@@ -138,12 +140,12 @@ def __updateSharedCartBG(cartid):
         cursor.commit()
     
 def __pushLogsBG(cartid, note):
-    query = 'insert into sharedcarthistory(cartid, note) values (?, ?)'
+    query = 'insert into shared_cart_history(cart_id, note) values (%s, %s)'
 
     if not __backgroundProcessing: __backgroundQueue.append([query, (cartid, note)])
     else: __backgroundQueue.append([query, (cartid, note)])
     
-def AddToCart(userid, productid, sizeid, quantity, cartids = ['*']):
+def AddToCart(user_id, product_id, sizeid, quantity, cartids = ['*']):
 
     if quantity == 0:
         return {"message": "Quantity cannot be zero"}
@@ -153,67 +155,71 @@ def AddToCart(userid, productid, sizeid, quantity, cartids = ['*']):
     cursor = Connector.establishConnection().cursor()
     
     from modules.authentication.authenticator import nameMapping
-    username = nameMapping[userid]
+    username = nameMapping[user_id]
 
     for row in cartids:
         if row == '*': continue
-        query = "select count(*) as tmp from sharedcartmember where cartid = ? and memberid = ?"
-        current = cursor.execute(query, (row, userid, )).fetchone()
+        query = "select count(*) as tmp from shared_cart_member where cart_id = %s and member_id = %s"
+        current = cursor.execute(query, (row, user_id, )).fetchone()
         
         if not current:
             errors += 'Error occur while adding new item to the cart ' + row
             continue
                 
-        query = "select * from sharedcartdetails where cartid = ? and memberid = ? and productid = ? and sizeid = ?"
-        current = cursor.execute(query, (row, userid, productid, sizeid)).fetchone()
+        query = "select * from shared_cart_details where cart_id = %s and member_id = %s and product_id = %s and size_id = %s"
+        current = cursor.execute(query, (row, user_id, product_id, sizeid)).fetchone()
         
         if not current:
-            cursor.execute('insert into sharedcartdetails (cartid, memberid, productid, sizeid, quantity) values (?, ?, ?, ?, ?)',
-                (row, userid, productid, sizeid, quantity)
+            cursor.execute('insert into shared_cart_details (cart_id, member_id, product_id, size_id, quantity) values (%s, %s, %s, %s, %s)',
+                (row, user_id, product_id, sizeid, quantity)
             )
         else:
             cursor.execute(
                 '''
-                    update sharedcartdetails set quantity = (
+                    update shared_cart_details set quantity = (
                         select max(a) from (values (quantity + ?), (0)) as tmptable(a)
                     ) where cartid = ? and memberid = ? 
-                    and productid = ? and sizeid = ?
+                    and product_id = ? and sizeid = ?
                 ''',
-                (quantity, row, userid, productid, sizeid)
+                (quantity, row, user_id, product_id, sizeid)
             )
 
         __updateSharedCartBG(row)
 
-        if quantity != -1000: __pushLogsBG(row, f'{username} đã {"thêm" if quantity > 0 else "bỏ"} {quantity if quantity > 0 else -quantity} sản phẩm có mã {productid} ({categoryMapping[productid]}) size {sizeid} {"vào" if quantity > 0 else "ra khỏi"} giỏ hàng')
-        else: __pushLogsBG(row, f'{username} đã ném sản phẩm có mã {productid} ({categoryMapping[productid]}) size {sizeid} ra khỏi giỏ hàng')
+        if quantity != -1000: __pushLogsBG(row, f'{username} đã {"thêm" if quantity > 0 else "bỏ"} {quantity if quantity > 0 else -quantity} sản phẩm có mã {product_id} ({categoryMapping[product_id]}) size {sizeid} {"vào" if quantity > 0 else "ra khỏi"} giỏ hàng')
+        else: __pushLogsBG(row, f'{username} đã ném sản phẩm có mã {product_id} ({categoryMapping[product_id]}) size {sizeid} ra khỏi giỏ hàng')
     
     if '*' in cartids:
-        query = "select cartid from cart where cartholder = ? and opening = 1"
+        query = "select cart_id from cart where cart_holder = %s and opening = 1"
        
-        row = cursor.execute(query, (userid,)).fetchone()
+        # row = cursor.execute(query, (user_id,)).fetchone()
+        cursor.execute(query, (user_id,))
+        row = cursor.fetchone()
         
         if not row:
             cartid = UUID()
-            query = "insert into cart (cartid, cartholder, opening) values (?, ?, 1)"
-            cursor.execute(query, (cartid, userid))
+            query = "insert into cart (cart_id, cart_holder, opening) values (%s, %s, 1)"
+            cursor.execute(query, (cartid, user_id))
             cursor.commit()
         else: 
             cartid = row[0]
         
-        query = "select quantity from cartdetail where cartid = ? and productid = ? and sizeid = ?"
-        row = cursor.execute(query, (cartid, productid, sizeid)).fetchone()
+        query = "select quantity from cart_detail where cart_id = %s and product_id = %s and size_id = %s"
+        # row = cursor.execute(query, (cartid, product_id, sizeid)).fetchone()
+        cursor.execute(query, (cartid, product_id, sizeid))
+        row = cursor.fetchone()
         
         if not row:
-            query = "insert into cartdetail (cartid, productid, sizeid, quantity) values (?, ?, ?, ?)"
-            cursor.execute(query, (cartid, productid, sizeid, quantity))
+            query = "insert into cart_detail (cart_id, product_id, size_id, quantity) values (%s, %s, %s, %s)"
+            cursor.execute(query, (cartid, product_id, sizeid, quantity))
         else:
-            if row[0] + quantity <= 0: query = "delete from cartdetail where cartid = ? and productid = ? and sizeid = ?"
-            else: query = "update cartdetail set quantity = ? where cartid = ? and productid = ? and sizeid = ?"
+            if row[0] + quantity <= 0: query = "delete from cart_detail where cart_id = %s and product_id =  %s and size_id =  %s"
+            else: query = "update cart_detail set quantity =  %s where cart_id =  %s and product_id =  %s and size_id =  %s"
             cursor.execute(query, (
-                row[0] + quantity, cartid, productid, sizeid
-            ) if row[0] + quantity > 0 else (cartid, productid, sizeid))
+                row[0] + quantity, cartid, product_id, sizeid
+            ) if row[0] + quantity > 0 else (cartid, product_id, sizeid))
         
-        cursor.commit()
+        connection.commit()
         
         __updateTotalPriceBG(cartid)
     
@@ -224,15 +230,18 @@ def AddToCart(userid, productid, sizeid, quantity, cartids = ['*']):
     return res
 
 def __summaryOfSharedInfo(cartid):
-    query = '''select sc.cartid, sc.cartholder, sc.numbersOfMembers, sc.totalprice, sc.createdAt, Users.FullName as holdername, users.avatar as holderavatar, cartname, totalitems
-        from (select * from SharedCart where cartid  = ?) sc
+    query = '''select sc.cart_id, sc.cart_holder, sc.numbers_of_members, sc.total_price, sc.created_at, users.full_name as holder_name, users.avatar as holder_avatar, cart_name, total_items
+        from (select * from shared_cart where cart_id  = %s) sc
         join users on (
-            userid = sc.cartholder
+            user_id = sc.cart_holder
         )
     '''
     
-    row = Connector.establishConnection().cursor().execute(query, (cartid, )).fetchone()
-    
+    # row = Connector.establishConnection().cursor().execute(query, (cartid, )).fetchone()
+    cursor = Connector.establishConnection().cursor()
+    cursor.execute(query, (cartid, ))
+    row = cursor.fetchone()
+
     return {
         "id": row[0],
         "cartholder": {
@@ -247,32 +256,36 @@ def __summaryOfSharedInfo(cartid):
         "totalitems": row[8]
     }
 
-def ProcessMakeSharedCart(userid, cartname):
+def ProcessMakeSharedCart(user_id, cartname):
     cartid = UUID()
-    query = "insert into sharedcart (cartid, cartholder, opening, totalprice, numbersOfMembers, createdAt, cartname) values (?, ?, 1, 0, 1, ?, ?)"
+    query = "insert into shared_cart (cart_id, cart_holder, opening, total_price, numbers_of_members, created_at, cart_name) values (%s, %s, 1, 0, 1, %s, %s)"
     cursor = Connector.establishConnection().cursor()
-    cursor.execute(query, (cartid, userid, datetime.datetime.now(), cartname))
-    cursor.commit()
+    cursor.execute(query, (cartid, user_id, datetime.datetime.now(), cartname))
+    # cursor.commit()
     
-    query = "insert into sharedcartmember (cartid, memberid) values (?, ?)"
-    cursor.execute(query, (cartid, userid))
-    cursor.commit()
+    query = "insert into shared_cart_member (cart_id, member_id) values (%s, %s)"
+    cursor.execute(query, (cartid, user_id))
+    # cursor.commit()
     
     return {
         "id": cartid,
         "info": __summaryOfSharedInfo(cartid)
     }
     
-def ProcessJoinSharedCart(cartid, userid):
+def ProcessJoinSharedCart(cartid, user_id):
     cursor = Connector.establishConnection().cursor()
-    query = "select cartid from sharedcart where cartid = ? and opening = 1"
-    row = cursor.execute(query, (cartid, )).fetchone()
+    query = "select cart_id from shared_cart where cart_id = %s and opening = 1"
+    # row = cursor.execute(query, (cartid, )).fetchone()
+    cursor.execute(query, (cartid, ))
+    row = cursor.fetchone()
 
     if not row:
         return { "message": "shared cart not found" }
     
-    query = "select * from SharedCartMember where memberid = ? and cartid = ?"
-    row = cursor.execute(query, (userid, cartid)).fetchone()
+    query = "select * from shared_cart_member where member_id = %s and cart_id = %s"
+    # row = cursor.execute(query, (user_id, cartid)).fetchone()
+    cursor.execute(query, (user_id, cartid))
+    cursor.fetchone()
     if row:
         return { 
             "message": "you are already in this shared cart",
@@ -280,9 +293,9 @@ def ProcessJoinSharedCart(cartid, userid):
         }
     
     try:
-        query = "insert into SharedCartMember (cartid, memberid) values (?, ?)"
-        cursor.execute(query, (cartid, userid))
-        cursor.commit()
+        query = "insert into shared_cart_member (cart_id, member_id) values (%s, %s)"
+        cursor.execute(query, (cartid, user_id))
+        # cursor.commit()
         threading.Thread(target=__updateSharedCartBG, args = (cartid, ), daemon = True).start()
     except: return {"message": "Something went wrong"}
     
@@ -314,42 +327,45 @@ def GetSharedCartInfo(memberid, code):
         "cartname": row[6],
     }
     
-def ProcessSavePersonalCart(userid, data):
-    query = 'delete from CartDetail where cartid = (select cartid from cart where cartholder = ? and opening = 1)'
+def ProcessSavePersonalCart(user_id, data):
+    query = 'delete from cart_detail where cart_id = (select cart_id from cart where cart_holder = %s and opening = 1)'
     cursor = Connector.establishConnection().cursor()
-    cursor.execute(query, (userid, ))
-    cursor.commit()
-    query = "select cartid, opening from cart where cartholder = ? and opening = 1"
-    row = cursor.execute(query, (userid, )).fetchone()
+    cursor.execute(query, (user_id, ))
+    # cursor.commit()
+    connection.commit()
+    query = "select cart_id, opening from cart where cart_holder = %s and opening = 1"
+    row = cursor.execute(query, (user_id, )).fetchone()
     
     cartid = None
     if not row:
         newCartId = UUID()
-        query = "insert into cart (cartid, cartholder) values (?, ?)"
-        cursor.execute(query, (newCartId, userid))
+        query = "insert into cart (cart_id, cart_holder) values (%s, %s)"
+        cursor.execute(query, (newCartId, user_id))
         cartid = newCartId
     else: 
         cartid = row[0]
 
-    query = 'insert into CartDetail (cartid, productid, sizeid, quantity) values (?, ?, ?, ?)'
+    query = 'insert into cart_detail (cart_id, product_id, size_id, quantity) values (%s, %s, %s, %s)'
 
     if len(data) != 0:
-        cursor.executemany(query, tuple((cartid, item['productid'], item['size'], item['quantity']) for item in data))
+        cursor.executemany(query, tuple((cartid, item['product_id'], item['size'], item['quantity']) for item in data))
         cursor.commit()
         threading.Thread(target=__updateTotalPriceBG, args = (cartid, ), daemon = True).start()
     
     return { "message": "saved!" }
 
-def ProcessGetMyCart(userid):
-    query = "select cartid, totalprice  from cart where cartholder = ? and opening = 1"
+def ProcessGetMyCart(user_id):
+    query = "select cart_id, total_price  from cart where cart_holder = %s and opening = 1"
     cursor = Connector.establishConnection().cursor()
-    row = cursor.execute(query, (userid,)).fetchone()
+    # row = cursor.execute(query, (user_id,)).fetchone()
+    cursor.execute(query, (user_id,))
+    row = cursor.fetchone()
     
     if not row:
         cartid = UUID()
-        query = "insert into cart (cartid, cartholder, opening) values (?, ?, 1)"
-        cursor.execute(query, (cartid, userid))
-        cursor.commit()
+        query = "insert into cart (cart_id, cart_holder, opening) values (%s, %s, 1)"
+        cursor.execute(query, (cartid, user_id))
+        # cursor.commit()
         
         return {
             'total-price': 0,
@@ -359,8 +375,10 @@ def ProcessGetMyCart(userid):
     total_price = row[1]
     cartid = row[0]
     
-    query = "select cd.productid, cd.sizeid, cd.quantity, p.title, p.Descriptions, p.Price, p.SexId, p.CategoryId, p.ImageUrl from (select productid, sizeid, quantity from cartdetail c where c.cartid = ?) cd left join product p on cd.productid = p.id"
-    rows = cursor.execute(query, (cartid,)).fetchall()
+    query = "select cd.product_id, cd.size_id, cd.quantity, p.title, p.descriptions, p.price, p.sex_id, p.category_id, p.image_url from (select product_id, size_id, quantity from cart_detail c where c.cart_id = %s) cd left join product p on cd.product_id = p.id"
+    # rows = cursor.execute(query, (cartid,)).fetchall()
+    cursor.execute(query, (cartid,))
+    rows = cursor.fetchall()
     
     return {
         'total-price': total_price,
@@ -379,10 +397,12 @@ def ProcessGetMyCart(userid):
         } for row in rows]
     }
     
-def ProcessGetMySharedCart(userid):
-    query = "select cartid, totalprice, numbersofmembers, createdat, cartname, totalitems from sharedcart where cartholder = ? and opening = 1"
+def ProcessGetMySharedCart(user_id):
+    query = "select cart_id, total_price, numbers_of_members, created_at, cart_name, total_items from shared_cart where cart_holder = %s and opening = 1"
     cursor = Connector.establishConnection().cursor()
-    rows = cursor.execute(query, (userid,)).fetchall()
+    # rows = cursor.execute(query, (user_id,)).fetchall()
+    cursor.execute(query, (user_id,))
+    rows = cursor.fetchall()
     return {
         "shared-carts": [
             {
@@ -396,17 +416,19 @@ def ProcessGetMySharedCart(userid):
         ]
     }
 
-def ProcessGetGetMyJoinedCart(userid):
-    query = ''' select cartid, cartholder, totalprice, numbersOfMembers, createdAt, FullName, u.avatar, cc.cartname, cc.totalitems  from (
-        select sc.cartid, c.cartholder, c.opening, c.totalprice, c.numbersOfMembers, c.createdAt, cartname, totalitems
-        from (select cartid from SharedCartMember where memberid = ?) as sc 
-        join (select * from sharedcart where opening = 1) c on (sc.cartid = c.cartid and c.cartholder != ?)
-    ) cc left join users u on (userid = cc.cartholder)
+def ProcessGetGetMyJoinedCart(user_id):
+    query = ''' select cart_id, cart_holder, total_price, numbers_of_members, created_at, full_name, u.avatar, cc.cart_name, cc.total_items  from (
+        select sc.cart_id, c.cart_holder, c.opening, c.total_price, c.numbers_of_members, c.created_at, cart_name, total_items
+        from (select cart_id from shared_cart_member where member_id = %s) as sc 
+        join (select * from shared_cart where opening = 1) c on (sc.cart_id = c.cart_id and c.cart_holder != %s)
+    ) cc left join users u on (user_id = cc.cart_holder)
     '''
     
     cursor = Connector.establishConnection().cursor()
-    rows = cursor.execute(query, (userid, userid, )).fetchall()
-    
+    # rows = cursor.execute(query, (user_id, user_id, )).fetchall()
+    cursor.execute(query, (user_id, user_id, ))
+    rows = cursor.fetchall()
+
     if not __backgroundProcessing:
         __backgroundQueue.append(['select * from size', ( )])
     else: __backgroundQueueTMP.append(['select * from size', ( )])
@@ -427,53 +449,59 @@ def ProcessGetGetMyJoinedCart(userid):
         ]
     }
     
-def PersonalSharedListInfo(userid):
-    query = '''select sc.cartid, cartholder, memberid, cartname from sharedcart sc join (select * from SharedCartMember where memberid = ?) scm on ( 
-        sc.cartid = scm.cartid
+def PersonalSharedListInfo(user_id):
+    query = '''select sc.cart_id, cart_holder, member_id, cart_name from shared_cart sc join (select * from shared_cart_member where member_id = %s) scm on ( 
+        sc.cart_id = scm.cart_id
     ) where opening = 1'''
     
     cursor = Connector.establishConnection().cursor()
-    rows = cursor.execute(query, (userid, )).fetchall()
+    cursor.execute(query, (user_id, ))
+    rows = cursor.fetchall()
+    # rows = cursor.execute(query, (user_id, )).fetchall()
     
     return {
         "shared": [
             {
-                "cartid": row[0],
-                "cartname": row[3],
+                "cart_id": row[0],
+                "cart_name": row[3],
             }
             for row in rows if row[1] == row[2]  
         ],
         "joined": [
             {
-                "cartid": row[0],
-                "cartname": row[3],
+                "cart_id": row[0],
+                "cart_name": row[3],
             }
             for row in rows if row[2] != row[1]
         ]
     }
     
-def ProcessGetSharedCartInfo(cartid, userid):
-    query = "select * from sharedcartmember where cartid = ? and memberid = ?"
+def ProcessGetSharedCartInfo(cartid, user_id):
+    query = "select * from shared_cart_member where cart_id = %s and member_id = %s"
     cursor = Connector.establishConnection().cursor()
-    row = cursor.execute(query, (cartid, userid, )).fetchone()
+    # row = cursor.execute(query, (cartid, user_id, )).fetchone()
+    cursor.execute(query, (cartid, user_id, ))
+    row = cursor.fetchone()
 
     if not row:
         raise Exception("Cart not found")
     
     query = '''
-        select cartid, productid, sizeid, COALESCE(sum(quantity), 0), Title, Descriptions, Price, SexId, CategoryId, ImageUrl
-        from (select * from SharedCartDetails where cartid = ?) scm join Product p 
-        on ( p.id = scm.productid )
-        group by cartid, productid, sizeid, Title, Descriptions, Price, SexId, CategoryId, ImageUrl
+        select cart_id, product_id, size_id, COALESCE(sum(quantity), 0), title, descriptions, price, sex_id, category_id, image_url
+        from (select * from shared_cart_details where cart_id = %s) scm join product p 
+        on ( p.id = scm.product_id )
+        group by cart_id, product_id, size_id, title, descriptions, price, sex_id, category_id, image_url
     '''
     
-    rows = cursor.execute(query, (cartid, )).fetchall()
+    # rows = cursor.execute(query, (cartid, )).fetchall()
+    cursor.execute(query, (cartid, ))
+    rows = cursor.fetchall()
     
     res = { }
     
     res["items"] = [
         {
-            "sizeid": row[2],
+            "size_id": row[2],
             "quantity": row[3],
             "product": {
                 "id": row[1],
@@ -492,8 +520,13 @@ def ProcessGetSharedCartInfo(cartid, userid):
     res['info']['totalprice'] = sum(row[3] * priceMapping[row[1]] for row in rows)
     res['info']['totalitems'] = sum(row[3] for row in rows)
     
-    res["logs"] = [
-        line[0] for line in cursor.execute('select note from SharedCartHistory where cartid = ?', (cartid, )).fetchall()
-    ]
+    # res["logs"] = [
+    #     line[0] for line in cursor.execute('select note from shared_cart_history where cart_id = %s', (cartid, )).fetchall()
+    # ]
+    cursor.execute('SELECT note FROM shared_cart_history WHERE cart_id = %s', (cartid,))
+    rows = cursor.fetchall()
+    logs = [row[0] for row in rows]
+    res['logs'] = logs
+
     
     return res

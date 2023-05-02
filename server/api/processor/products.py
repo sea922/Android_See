@@ -7,8 +7,10 @@ categoryMapping = None
 priceMapping = None
 
 if categoryMapping is None:
-    query = 'select p.id, CategoryName, p.price from product p join Category on p.CategoryId = Category.CategoryId'
-    rows = Connector.establishConnection().cursor().execute(query).fetchall()
+    query = 'select p.id, category_name, p.price from product p join category on p.category_id = category.category_id'
+    cursor = Connector.establishConnection().cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
     categoryMapping = {row[0]: row[1] for row in rows}
     priceMapping = {row[0]: row[2] for row in rows}
 
@@ -19,8 +21,10 @@ def GetProducts(sex, category, page = None):
     res = {}
     
     if sex and category:
-        query = 'select id, title, descriptions, price, imageurl from product where sexid = ? and categoryid = ?'
-        rows = Connector.establishConnection().cursor().execute(query, (sex, category)).fetchall()
+        query = 'select id, title, descriptions, price, image_url from product where sex_id = %s and category_id = %ss'
+        cursor = Connector.establishConnection().cursor()
+        cursor.execute(query)
+        rows = cursor.fetchall()
         
         res = {'data': [{
             'id': row[0],
@@ -34,7 +38,7 @@ def GetProducts(sex, category, page = None):
         } for row in rows]}
         
         if page is not None:
-            lIdx = page * ITEM_PER_PAGE
+            lIdx = page * ITEM_PER_PAGE //6
             rIdx = (page + 1) * ITEM_PER_PAGE
             _lIdx, _rIdx = max(lIdx, 0), min(rIdx, len(res['data']))
             res['data'] = res['data'][_lIdx : _rIdx]
@@ -42,8 +46,10 @@ def GetProducts(sex, category, page = None):
         return res        
 
     if sex:
-        query = 'select id, title, descriptions, price, categoryid, imageurl from product where sexid = ?'
-        rows = Connector.establishConnection().cursor().execute(query, (sex, )).fetchall()
+        query = 'select id, title, descriptions, price, category_id, image_url from product where sex_id = %s'
+        cursor = Connector.establishConnection().cursor()
+        cursor.execute(query,(sex, ))
+        rows = cursor.fetchall()
         res = {}
         
         for row in rows:
@@ -71,8 +77,10 @@ def GetProducts(sex, category, page = None):
         return res
     
     if category:
-        query = 'select id, title, descriptions, price, sexid, imageurl, categoryid from product where categoryid = ?'
-        rows = Connector.establishConnection().cursor().execute(query, (category, )).fetchall()
+        query = 'select id, title, descriptions, price, sex_id, image_url, category_id from product where category_id = %s'
+        cursor = Connector.establishConnection().cursor()
+        cursor.execute(query, (category, ))
+        rows = cursor.fetchall()
         res = {}
         for row in rows:
             if row[4] not in res: res[row[4]] = []
@@ -102,15 +110,19 @@ def GetProductsByListRand(limit, ignoreid):
     global allIdsList
     if not allIdsList:
         query = "select id from product"
-        rows = Connector.establishConnection().cursor().execute(query).fetchall()
+        cursor = Connector.establishConnection().cursor()
+        cursor.execute(query)
+        rows = cursor.fetchall()
         allIdsList = [row[0] for row in rows]
 
     if type(ignoreid) != list: ignoreid = [ignoreid]
     randIds = [id for id in allIdsList if id not in ignoreid]
     randIds = random.sample(randIds, min(limit, len(randIds)))
     
-    query = f"select id, title, descriptions, price, sexid, categoryid, imageurl from product p where p.id in ({','.join([str(i) for i in randIds])})"
-    rows = Connector.establishConnection().cursor().execute(query).fetchall()
+    query = f"select id, title, descriptions, price, sex_id, category_id, image_url from product p where p.id in ({','.join([str(i) for i in randIds])})"
+    cursor = Connector.establishConnection().cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
 
     return [
         {
@@ -136,8 +148,10 @@ def GetProductsByList(ids: list, limit = 8, requiredSampler = True):
     ids = [str(id) for id in ids]    
     
     idsStr = f'({", ".join(ids)})'
-    query = f"select id, title, descriptions, price, sexid, categoryid, imageurl from product p where p.id in {idsStr}"
-    rows = Connector.establishConnection().cursor().execute(query).fetchall()
+    query = f"select id, title, descriptions, price, sex_id, category_id, image_url from product p where p.id in {idsStr}"
+    cursor = Connector.establishConnection().cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
     res = {"data": []}
     for row in rows:
         res["data"] += [{
@@ -160,8 +174,10 @@ def GetProductsByList_2(ids, page = None):
             'data': []
         }
     
-    query = f"select id, title, descriptions, price, sexid, categoryid, imageurl from product p where p.id in ({','.join([str(i) for i in ids])})"
-    rows = Connector.establishConnection().cursor().execute(query).fetchall()
+    query = f"select id, title, descriptions, price, sex_id, category_id, image_url from product p where p.id in ({','.join([str(i) for i in ids])})"
+    cursor = Connector.establishConnection().cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
     
     res = {
         'data': []
@@ -184,22 +200,30 @@ def GetProductsByList_2(ids, page = None):
 
     return res
 
-def GetProductDetails(id, userid):
-    queryInfo = f"select id, title, descriptions, price, sexid, categoryid from product p where p.id = ?"
-    queryImage = f"select I.ImageUrl from Image I where I.ProductId = ?"
-    querySize = f"select SizeId, Quantity from Inventory I where I.ProductId = ?"
+def GetProductDetails(id, user_id):
+    queryInfo = f"select id, title, descriptions, price, sex_id, category_id from product p where p.id = %s"
+    queryImage = f"select I.image_url from image I where I.product_id = %s"
+    querySize = f"select size_id, quantity from inventory I where I.product_id = %s"
     
     cursor = Connector.establishConnection().cursor()
     
     isInWishList = False
-    if userid is not None:
-        checkWishList = f"select count(*) from wishlist w where w.userid = ? and w.productid = ?"
-        result = cursor.execute(checkWishList, (userid, id)).fetchone()
-        if result[0] > 0: isInWishList = True
-    
-    prodInfo = cursor.execute(queryInfo, (id, )).fetchone()
-    images = cursor.execute(queryImage, (id, )).fetchall()
-    inventory = cursor.execute(querySize, (id, )).fetchall()
+    if user_id is not None:
+        checkWishList = f"select count(*) from wishlist w where w.user_id =  %s and w.product_id =  %s"
+        # result = cursor.execute(checkWishList, (user_id, id)).fetchone()
+        cursor.execute(checkWishList, (user_id, id))
+        result = cursor.fetchone()[0]
+        if result > 0: isInWishList = True
+    cursor.execute(queryInfo, (id,))
+    prodInfo = cursor.fetchone()
+    # prodInfo = cursor.execute(queryInfo, (id,)).fetchone()
+    cursor.execute(queryImage, (id,))
+    images = cursor.fetchall()
+
+    # inventory = cursor.execute(querySize, (id, )).fetchall()
+    cursor.execute(querySize, (id,))
+    inventory = cursor.fetchall()
+
     
     return {
         'id': prodInfo[0],

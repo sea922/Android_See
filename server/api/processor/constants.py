@@ -7,27 +7,35 @@ categoryName = None
 
 if not categoryName:
     query = 'select * from category'
-    rows = Connector.establishConnection().cursor().execute(query).fetchall()
+    cursor = Connector.establishConnection().cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
     categoryName = {row[0]: row[1] for row in rows}
 
 sexName = None
 
 if not sexName:
-    query = 'select * from Sex'
-    rows = Connector.establishConnection().cursor().execute(query).fetchall()
+    query = 'select * from sex'
+    cursor = Connector.establishConnection().cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
     sexName = {row[0]: row[1] for row in rows}
 
 allIdsList = None
 if not allIdsList:
     query = "select id from product"
-    rows = Connector.establishConnection().cursor().execute(query).fetchall()
+    cursor = Connector.establishConnection().cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
     allIdsList = [row[0] for row in rows]
     
 storeDict = None
 if not storeDict:
-    query = 'select locationid, X_coordinate, Y_coordinate, locationname, address from Location'
+    query = 'select location_id, X_coordinate, Y_coordinate, location_name, address from location'
+    # cursor = Connector.establishConnection().cursor()
     cursor = Connector.establishConnection().cursor()
-    rows = cursor.execute(query).fetchall()
+    cursor.execute(query)
+    rows = cursor.fetchall()
     storeDict = {
         'branchs': [{
                 'branch_id': row[0],
@@ -39,8 +47,10 @@ if not storeDict:
     
 categories = None
 if not categories:
-    query = "select sexid, categoryid from product group by sexid, categoryid"
-    rows = Connector.establishConnection().cursor().execute(query).fetchall()
+    query = "select sex_id, category_id from product group by sex_id, category_id"
+    cursor = Connector.establishConnection().cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
     
     categories = {}
     for row in rows:

@@ -11,10 +11,10 @@ __cachingTime = 60 * 30
 
 def __summaryOfSharedInfo(cartid):
     query = '''
-        select sc.cartid, sc.cartholder, sc.numbersOfMembers, sc.totalprice, sc.createdAt, Users.FullName as holdername, users.avatar as holderavatar, cartname, totalitems
+        select sc.cartid, sc.cartholder, sc.numbersOfMembers, sc.totalprice, sc.createdAt, Users.full_name as holdername, users.avatar as holderavatar, cartname, totalitems
         from (select * from SharedCart where cartid  = ?) sc
         join users on (
-            userid = sc.cartholder
+            user_id = sc.cartholder
         )
     '''
     
@@ -47,7 +47,7 @@ def __summaryOfSharedInfo(cartid):
         }
     }
     
-def AddToSharedCart(cartid, userid, productid, sizeid, quantity):
+def AddToSharedCart(cartid, user_id, productid, sizeid, quantity):
     pass
 
 def GetCart(cartid):

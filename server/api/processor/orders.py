@@ -10,10 +10,12 @@ from .carts import GetSharedCartInfo
 
 from .misc import StoresLocationJson, UUID, BranchInfo
 
+connection = Connector.establishConnection()
+
 __mailInstance = gmail.MailService()
 # __mailInstance.login('hocviencanhsatnhandan290@gmail.com', config.Config.getValue('email-password'))
 
-def ProcessSharedOrder(userid, cartid, extraInfo):
+def ProcessSharedOrder(user_id, cartid, extraInfo):
     global __mailInstance
     
     preorder_required = False
@@ -39,7 +41,7 @@ def ProcessSharedOrder(userid, cartid, extraInfo):
     
     cursor = Connector.establishConnection().cursor()
     query = '''
-    select memberid, productid, sizeid, quantity, p.title, p.Price, p.ImageUrl from
+    select member_id, product_id, size_id, quantity, p.title, p.price, p.image_url from
     (
         select memberid, productid, sizeid, quantity from SharedCartDetails where cartid = ?
     ) c join Product p on (p.id = c.productid)
@@ -108,7 +110,7 @@ def ProcessSharedOrder(userid, cartid, extraInfo):
     mailContentBase = '''
     <div class='main'>
         <div class="container">
-            <p class="app__name">JODERN STORE</p>
+            <p class="app__name">SEE STORE</p>
             <div class='divider'></div>
         </div>
     '''
@@ -166,7 +168,7 @@ def ProcessSharedOrder(userid, cartid, extraInfo):
         "message": "Done!"
     }
     
-def ProcessPersonalOrder(userid, extraInfo):
+def ProcessPersonalOrder(user_id, extraInfo):
     global __mailInstance
 
     preorder_required = False
@@ -190,17 +192,21 @@ def ProcessPersonalOrder(userid, extraInfo):
     if orderType == 1 and (not branchid or not date):
         return {"message": "Branch id and Date should be provided for pickup order"}
     
-    query = 'select cartid from cart where cartholder = ? and opening = 1'
+    query = 'select cart_id from cart where cart_holder = %s and opening = 1'
     cursor = Connector.establishConnection().cursor()
-    cartid = cursor.execute(query, (userid, )).fetchone()
-    
+    # cartid = cursor.execute(query, (user_id, )).fetchone()
+
+    cursor.execute(query,(user_id, ))
+    cartid = cursor.fetchone()    
     if not cartid:
         return {"message": "Cart is empty"}
     
     cartid = cartid[0]
     
-    query = 'select cd.productid, cd.quantity, cd.sizeid, p.price, p.imageurl, p.title from (select productid, quantity, sizeid from CartDetail where cartid = ?) cd left join product p on (p.id = cd.productid)'
-    rows = cursor.execute(query, (cartid, )).fetchall()
+    query = 'select cd.product_id, cd.quantity, cd.size_id, p.price, p.image_url, p.title from (select product_id, quantity, size_id from cart_detail where cart_id = %s) cd left join product p on (p.id = cd.product_id)'
+    # rows = cursor.execute(query, (cartid, )).fetchall()
+    cursor.execute(query,(cartid, ))
+    rows = cursor.fetchall()  
     
     orderData = [{
         'productid': row[0],
@@ -214,8 +220,10 @@ def ProcessPersonalOrder(userid, extraInfo):
     if len(orderData) == 0:
         return {'message': 'Cart is empty'}
     
-    query = "select productid, sizeid, quantity from inventory where productid in ({})".format(','.join([str(item['productid']) for item in orderData]))
-    rows = cursor.execute(query).fetchall()
+    query = "select product_id, size_id, quantity from inventory where product_id in ({})".format(','.join([str(item['productid']) for item in orderData]))
+    # rows = cursor.execute(query).fetchall()
+    cursor.execute(query)
+    rows = cursor.fetchall()  
     
     inventoriesData = {}
     
@@ -224,8 +232,8 @@ def ProcessPersonalOrder(userid, extraInfo):
             inventoriesData[str(row[0])] = {}
         inventoriesData[str(row[0])][row[1]] = row[2]
     
-    updateTrendingQueryPattern = 'exec UpdateTrending ?, ?'
-    dropDownQuery = 'update inventory set quantity = (select max(a) from (values (quantity - ?), (0)) as tmptable(a)) where productid = ? and sizeid = ?'
+    updateTrendingQueryPattern = 'call UpdateTrending (%s, %s)'
+    dropDownQuery = 'UPDATE inventory SET quantity = GREATEST(quantity - %s, 0) WHERE product_id = %s AND size_id = %s'
     
     for item in orderData:
         if inventoriesData[str(item['productid'])][item['sizeid']] < item['quantity']:
@@ -234,6 +242,7 @@ def ProcessPersonalOrder(userid, extraInfo):
         cursor.execute(dropDownQuery, (item['quantity'], item['productid'], item['sizeid']))
         total_price += item['quantity'] * item['price']
 
+        print(item['productid'], item['quantity'])
         cursor.execute(updateTrendingQueryPattern, (item['productid'], item['quantity']))
 
     if orderType == 1:
@@ -242,7 +251,7 @@ def ProcessPersonalOrder(userid, extraInfo):
     mailContentBase = '''
         <div class='main'>
             <div class="container">
-                <p class="app__name">JODERN STORE</p>
+                <p class="app__name">SEE STORE</p>
                 <div class='divider'></div>
             </div>
     '''
@@ -289,39 +298,42 @@ def ProcessPersonalOrder(userid, extraInfo):
         content = {'html': gmail.html_mail_2(content = mailContentBase)}
     )
     
-    threading.Thread(target = __mailInstance.send_mail, args = (mailContent, ), daemon = True).start()
+    # threading.Thread(target = __mailInstance.send_mail, args = (mailContent, ), daemon = True).start()
 
     newCartId = UUID()
     
-    cursor.execute('update cart set opening = 0 where cartid = ?', (cartid, ))
+    cursor.execute('update cart set opening = 0 where cart_id = %s', (cartid, ))
     
     
     if orderType == 0:
-        cursor.execute('insert into orders(cartid, paymentstatus, deliverstatus, OrderType, CustomerName, CustomerPhone, Address, Email) values (?, ?, ?, ?, ?, ?, ?, ?)', (cartid, 0, 0, orderType, customer_name, phone_number, location, email))
+        cursor.execute('insert into orders(cart_id, payment_status, deliver_status, order_type, customer_name, customer_phone, address, email) values (%s, %s, %s, %s, %s, %s, %s, %s)', (cartid, 0, 0, orderType, customer_name, phone_number, location, email))
     else: 
-        cursor.execute('insert into orders(cartid, paymentstatus, deliverstatus, OrderType, CustomerName, CustomerPhone, Address, Email, branchid, Pickuptime) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (cartid, 0, 0, orderType, customer_name, phone_number, location, email, branchid, date))
-    cursor.execute('insert into cart(cartid, cartholder) values (?, ?)', (newCartId, userid))
+        cursor.execute('insert into orders(cart_id, payment_status, deliver_status, order_type, customer_name, customer_phone, address, email, branch_id, pickup_time) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', (cartid, 0, 0, orderType, customer_name, phone_number, location, email, branchid, date))
+    cursor.execute('insert into cart(cart_id, cart_holder) values (%s, %s)', (newCartId, user_id))
     
-    cursor.commit()
+    connection.commit()
     return {"message": "Done!"}
 
 
 
 
-def GetSharedOrdersData(userid):
+def GetSharedOrdersData(user_id):
+    print(user_id)
     query = '''
-        select s.cartid, s.totalprice, s.totalitems, so.createdat, so.paymentstatus, so.deliverstatus, ordertype, branchid, cartname from (
-            select scart.cartid, scart.totalprice, scart.totalitems, scart.cartname from (
-                select * from SharedCart where opening = 0
+        select s.cart_id, s.total_price, s.total_items, so.created_at, so.payment_status, so.deliver_status, order_type, branch_id, cart_name from (
+            select scart.cart_id, scart.total_price, scart.total_items, scart.cart_name from (
+                select * from shared_cart where opening = 0
             ) scart join (
-                select * from SharedCartMember where memberid = ?
-            ) smem on (smem.cartid = scart.cartid)
-        ) s left join sharedorders so on (so.cartid = s.cartid)
-        order by so.createdat desc
+                select * from shared_cart_member where member_id = %s
+            ) smem on (smem.cart_id = scart.cart_id)
+        ) s left join shared_orders so on (so.cart_id = s.cart_id)
+        order by so.created_at desc
     '''
     
     cursor = Connector.establishConnection().cursor()
-    rows = cursor.execute(query, (userid, )).fetchall()
+    # rows = cursor.execute(query, (user_id, )).fetchall()
+    cursor.execute(query,(user_id, ))
+    rows = cursor.fetchall()
     
     return {
         "orders": [
@@ -340,19 +352,21 @@ def GetSharedOrdersData(userid):
     }
 
 
-def GetPersonalOrdersData(userid):
-    query = '''select KK.cartid, KK.totalprice, count(CartDetail.productid), KK.createdAt, KK.PaymentStatus, KK.DeliverStatus, OrderType, branchid
-        from cartdetail right join (
-            select K.cartid, K.totalprice, orders.CreatedAt, PaymentStatus, DeliverStatus, OrderType, branchid 
-            from (select cartid, totalprice from cart c where cartholder = ? and opening = 0) K 
-            left join orders on (orders.cartid = K.cartid)
-        ) KK on (KK.cartid = CartDetail.cartid)
-        group by KK.cartid, KK.totalprice, KK.createdAt, KK.PaymentStatus, KK.DeliverStatus, OrderType, branchid
-        order by KK.createdAt desc
+def GetPersonalOrdersData(user_id):
+    query = '''select KK.cart_id, KK.total_price, count(cart_detail.product_id), KK.created_at, KK.payment_status, KK.deliver_status, order_type, branch_id
+        from cart_detail right join (
+            select K.cart_id, K.total_price, orders.created_at, payment_status, deliver_status, order_type, branch_id 
+            from (select cart_id, total_price from cart c where cart_holder = %s and opening = 0) K 
+            left join orders on (orders.cart_id = K.cart_id)
+        ) KK on (KK.cart_id = cart_detail.cart_id)
+        group by KK.cart_id, KK.total_price, KK.created_at, KK.payment_status, KK.deliver_status, order_type, branch_id
+        order by KK.created_at desc
     '''
     
     cursor = Connector.establishConnection().cursor()
-    rows = cursor.execute(query, (userid, )).fetchall()
+    # rows = cursor.execute(query, (user_id, )).fetchall()
+    cursor.execute(query,(user_id, ))
+    rows = cursor.fetchall()
     
     res = {
         "orders": [
@@ -366,14 +380,15 @@ def GetPersonalOrdersData(userid):
                 "ordertype": 1 if row[6] else 0,
                 "branchid": row[7]
             } for row in rows
-        ] + GetSharedOrdersData(userid)['orders']
+        ] + GetSharedOrdersData(user_id)['orders']
     }
     
     res['orders'].sort(key = lambda x: datetime.datetime.strptime(x['createdat'], '%d-%m-%Y'), reverse = True)
+    print(res)
     return res
 
 # o.createdAt, o.PaymentStatus, o.DeliverStatus, o.OrderType, o.branchid, c.totalprice, o.CustomerName, o.CustomerPhone, o.Address, o.Email, o.PickupTime
-def SharedOrderDetails(userid, cartid):
+def SharedOrderDetails(user_id, cartid):
     cursor = Connector.establishConnection().cursor()
     
     query = '''
@@ -389,12 +404,12 @@ def SharedOrderDetails(userid, cartid):
         ) s left join sharedorders so on (so.cartid = s.cartid)
     '''
     
-    generalInfo = cursor.execute(query, (cartid, userid, )).fetchone()
+    generalInfo = cursor.execute(query, (cartid, user_id, )).fetchone()
     if not generalInfo:
         raise Exception("permission denied")
     
     query = '''
-        select p.id, s.sizeid, s.quantity, p.Title, p.Descriptions, p.Price, p.SexId, p.CategoryId, p.ImageUrl from (
+        select p.id, s.sizeid, s.quantity, p.Title, p.Descriptions, p.Price, p.sex_id, p.category_id, p.ImageUrl from (
             select productid, sizeid, quantity from SharedCartDetails where cartid = ?
         ) s join Product p on ( p.Id = s.productid )
     '''
@@ -449,30 +464,34 @@ def SharedOrderDetails(userid, cartid):
     return res
     
 
-def PersonalOrderDetails(userid, code):
+def PersonalOrderDetails(user_id, code):
     cursor = Connector.establishConnection().cursor()
     
-    query = '''select o.createdAt, o.PaymentStatus, o.DeliverStatus, o.OrderType, o.branchid, c.totalprice, o.CustomerName, o.CustomerPhone, o.Address, o.Email, o.PickupTime from (
-            select cartid, cartholder, totalprice from cart 
-            where cartholder = ? and cartid = ? and opening = 0
-        ) c left join orders o on (o.cartid = c.cartid)
+    query = '''select o.created_at, o.payment_status, o.deliver_status, o.order_type, o.branch_id, c.total_price, o.customer_name, o.customer_phone, o.address, o.email, o.pickup_time from (
+            select cart_id, cart_holder, total_price from cart 
+            where cart_holder = %s and cart_id = %s and opening = 0
+        ) c left join orders o on (o.cart_id = c.cart_id)
     '''
 
-    generalInfo = cursor.execute(query, (userid, code, )).fetchone()
+    # generalInfo = cursor.execute(query, (user_id, code, )).fetchone()
+    cursor.execute(query, (user_id, code, ))
+    generalInfo = cursor.fetchone()
     if not generalInfo:
         try:
-            res = SharedOrderDetails(userid, code) # search in shared order
+            res = SharedOrderDetails(user_id, code) # search in shared order
             return res
         except: 
             raise Exception("permission denied")        
     
     query = '''
-        select c.productid, c.sizeid, c.quantity, p.title, p.descriptions, p.price, p.sexid, p.categoryid, p.imageurl from (
-            select productid, sizeid, quantity from cartdetail where cartid = ?
-        ) c left join product p on (p.id = c.productid)
+        select c.product_id, c.size_id, c.quantity, p.title, p.descriptions, p.price, p.sex_id, p.category_id, p.image_url from (
+            select product_id, size_id, quantity from cart_detail where cart_id = %s
+        ) c left join product p on (p.id = c.product_id)
     '''
 
-    rows = cursor.execute(query, (code, )).fetchall()
+    # rows = cursor.execute(query, (code, )).fetchall()
+    cursor.execute(query, (code, ))
+    rows = cursor.fetchall()
     orderType = 1 if generalInfo[3] else 0
     
     res = {
@@ -521,7 +540,7 @@ def PersonalOrderDetails(userid, code):
 
 def ProcessMarkAsDelivered(cartid):
     cursor = Connector.establishConnection().cursor()
-    cursor.execute('update orders set deliverstatus = 1, paymentstatus = 1 where cartid = ?', (cartid, ))
-    cursor.execute('update sharedorders set deliverstatus = 1, paymentstatus = 1 where cartid = ?', (cartid, ))
-    cursor.commit()
+    cursor.execute('update orders set deliver_status = 1, payment_status = 1 where cart_id = %s', (cartid, ))
+    cursor.execute('update shared_orders set deliver_status = 1, payment_status = 1 where cart_id = %s', (cartid, ))
+    # cursor.commit()
     return {"message": "Done!"}
