@@ -361,12 +361,12 @@ def html_mail(**kwargs):
 )
 
     mailHeader = '''
-    Jodern Store xin cảm ơn quý khách hàng <b>{customer_name}</b> vì đã tin tưởng và sử dụng dịch vụ của chúng tôi. Đơn hàng của quý khách bao gồm <b>{pcnt}</b> sản phẩm, chi tiết như sau:
+    See Store xin cảm ơn quý khách hàng <b>{customer_name}</b> vì đã tin tưởng và sử dụng dịch vụ của chúng tôi. Đơn hàng của quý khách bao gồm <b>{pcnt}</b> sản phẩm, chi tiết như sau:
     '''.format(
         customer_name = kwargs.get('customer_name', ''),
         pcnt = kwargs.get('product_count', 0),
     ) if kwargs['orderType'] == 0 else '''
-    Jodern Store xin cảm ơn quý khách hàng <b>{customer_name}</b> vì đã tin tưởng và sử dụng dịch vụ của chúng tôi. Dưới đây là thông tin về lịch hẹn và :
+    See Store xin cảm ơn quý khách hàng <b>{customer_name}</b> vì đã tin tưởng và sử dụng dịch vụ của chúng tôi. Dưới đây là thông tin về lịch hẹn và :
     '''
 
     html_template = str('''<!DOCTYPE html>
@@ -548,12 +548,12 @@ def html_mail(**kwargs):
 <body>
     <div class='main'>
         <div class="container">
-            <p class="app__name">JODERN STORE</p>
+            <p class="app__name">SEE STORE</p>
             <div class='divider'></div>
         </div>
 
         <div class="container">
-            <p>Jodern Store xin cảm ơn quý khách hàng <b>{customer_name}</b> vì đã tin tưởng và sử dụng dịch vụ của chúng tôi. Đơn hàng của quý khách bao gồm <b>{pcnt}</b> sản phẩm, chi tiết như sau:</p>
+            <p>See Store xin cảm ơn quý khách hàng <b>{customer_name}</b> vì đã tin tưởng và sử dụng dịch vụ của chúng tôi. Đơn hàng của quý khách bao gồm <b>{pcnt}</b> sản phẩm, chi tiết như sau:</p>
         </div>
 
         <div class="container">
@@ -583,7 +583,7 @@ def html_mail(**kwargs):
         content = kwargs.get('html_content'),
         phone = kwargs['phone_number'],
         address = kwargs['location'],
-        more = '<p><i>(Một hoặc vài sản phẩm trong đơn hàng của quý khách cần thời gian preoder, thời gian giao có thể chậm hơn 1 hoặc 2 ngày. Quý khách hàng thông cảm cho Jodern nhé!)</i></p>' if preoder_required else '',
+        more = '<p><i>(Một hoặc vài sản phẩm trong đơn hàng của quý khách cần thời gian preoder, thời gian giao có thể chậm hơn 1 hoặc 2 ngày. Quý khách hàng thông cảm cho See nhé!)</i></p>' if preoder_required else '',
         shippingFeeDetails = shippingFeeDetails if kwargs['orderType'] == 0 else ""
     )
         
