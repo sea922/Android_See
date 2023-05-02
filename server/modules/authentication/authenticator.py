@@ -13,10 +13,11 @@ import threading
 
 nameMapping = None
 
-def __backgroundUpdateThread(timeout = 10):
-    query = 'select userid, fullname from users'
+def __backgroundUpdateThread(timeout=10):
+    query = 'select user_id, full_name from users'
     cursor = Connector.establishConnection().cursor()
-    rows = cursor.execute(query).fetchall()
+    cursor.execute(query)
+    rows = cursor.fetchall()
     global nameMapping
     nameMapping = {row[0]: row[1] for row in rows}
     threading.Timer(timeout, __backgroundUpdateThread).start()
@@ -43,37 +44,37 @@ class Verifier:
 
 class Authenticator:
     def Login(**kwargs):
-        userid = kwargs.get("userid", "Unknown")
-        fullname = kwargs.get("fullname", "Unknown")
+        user_id = kwargs.get("userid", "Unknown")
+        full_name = kwargs.get("fullname", "Unknown")
         email = kwargs.get("email", "Unknown")
         phone = kwargs.get("phone", "Unknown")
         token = kwargs.get("token", "Unknown")
         avatar = kwargs.get("avatar", "")
 
-        if not Authenticator.verify(userid, token):
+        if not Authenticator.verify(user_id, token):
             return {
                 "error": "invalid token"
             }
         
         cursor = Connector.establishConnection().cursor()
-        query = "select * from users where userid = ?"
-        cursor.execute(query, userid)
+        query = "select * from users where user_id = %s"
+        cursor.execute(query, user_id)
         row = cursor.fetchone()
         if not row:
-            query = "insert into users (userid, fullname, email, Phone, Address, avatar) values (?, ?, ?, ?, ?, ?)"
-            cursor.execute(query, (userid, fullname, email, phone, "", avatar))
-            cursor.commit()
+            query = "insert into users (user_id, full_name, email, phone, address, avatar) values (%s, %s, %s, %s, %s, %s)"
+            cursor.execute(query, (user_id, full_name, email, phone, "", avatar))
+            # cursor.commit()
 
         return {
-            "message": "Chào mừng đến với Jodern!",
+            "message": "Chào mừng đến với See!",
             "access_token": Verifier.generateToken (
                 payload = {
-                    "userid": userid,
+                    "user_id": user_id,
                     "email": email,
                     "phone": phone
                 }
             )
         }
 
-    def verify(userid, token):
+    def verify(user_id, token):
         return True

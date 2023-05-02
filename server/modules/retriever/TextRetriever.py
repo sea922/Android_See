@@ -35,3 +35,5 @@ class TextRetriever():
                 continue
             res.append(text_indices[i])
         return res
+
+        # ao khoac mau den
