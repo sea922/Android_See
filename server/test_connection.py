@@ -24,7 +24,7 @@ json_data = '''
 data = json.loads(json_data)
 
 # Construct the SQL INSERT statement
-insert_statement = f"INSERT INTO Product (Title, Descriptions, Price, SexId, CategoryId, ImageUrl) VALUES ('{data['title']}', '{data['description']}', {data['price']}, {data['sex_id']}, {data['category_id']}, '{data['image_url']}')"
+insert_statement = f"INSERT INTO Product (Title, Descriptions, Price, sex_id, category_id, ImageUrl) VALUES ('{data['title']}', '{data['description']}', {data['price']}, {data['sex_id']}, {data['category_id']}, '{data['image_url']}')"
 
 # Connect to the SQL Server database and execute the INSERT statement
 conn = pyodbc.connect(f"DRIVER={{SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}")
