@@ -4,6 +4,7 @@ from PIL import Image
 import torch
 from transformers import AutoFeatureExtractor, Swinv2Model
 from io import BytesIO
+import json
 
 from modules.retriever.Retriever import Retriever
 
@@ -22,7 +23,9 @@ class MySwinT2(torch.nn.Module):
         return outputs.pooler_output[0].numpy()
     
 model = MySwinT2()
-image_indices = np.load('data/res/features/images/image_indices.npy', allow_pickle=True)
+# image_indices = np.load('data/res/features/images/image_indices.npy', allow_pickle=True)
+with open("data/res/features/images/image_indices.npy") as f:
+  image_indices = json.load(f)
 print('[STATUS] Image retrieval model loaded')
 
 def image_preprocess(data):
