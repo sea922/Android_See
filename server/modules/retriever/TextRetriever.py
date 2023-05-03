@@ -1,13 +1,10 @@
 from sentence_transformers import SentenceTransformer
 import numpy as np
-import json
 
 from modules.retriever.Retriever import Retriever
 
 text_model = SentenceTransformer('keepitreal/vietnamese-sbert')
-# text_indices = np.load('data/res/features/texts/text_indices.npy', allow_pickle=True)
-with open("data/res/features/texts/text_indices.npy") as f:
-  text_indices = json.load(f)
+text_indices = np.load('data/res/features/texts/text_indices.npy')
 print('[STATUS] Text retrieval model loaded')
 
 class TextRetriever():
