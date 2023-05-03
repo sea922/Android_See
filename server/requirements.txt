@@ -10,3 +10,4 @@ djangorestframework
 PyJWT==2.6.0
 pyodbc
 PyMySQL
+faiss-cpu
