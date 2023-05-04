@@ -21,4 +21,10 @@
     <style name="Theme.SeeStore.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.SeeStore.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="SeeStore.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="SeeStore.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="SeeStore.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

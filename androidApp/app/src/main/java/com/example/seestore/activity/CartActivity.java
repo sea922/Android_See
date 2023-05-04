@@ -1,13 +1,14 @@
-package com.example.seestore;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.example.seestore.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.View;
 
-public class SplashActivity  extends AppCompatActivity {
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.seestore.R;
+
+public class CartActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,7 +16,7 @@ public class SplashActivity  extends AppCompatActivity {
         setContentView(R.layout.activity_splash );
 
         new Handler().postDelayed((Runnable) () -> {
-            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+            Intent intent = new Intent(CartActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }, 3000);
