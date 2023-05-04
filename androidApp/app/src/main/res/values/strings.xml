@@ -5,4 +5,10 @@
     <string name="previous">Previous</string>
     <string name="back">Back</string>
     <string name="hello_world">Hello world</string>
+    <string name="check_out">Thanh toán</string>
+    <string name="total">Tổng cộng</string>
+    <string name="sub_total">Tổng tiền</string>
+    <string name="shipping">Vận chuyển</string>
+    <string name="cart_header">Vận chuyển</string>
+
 </resources>
