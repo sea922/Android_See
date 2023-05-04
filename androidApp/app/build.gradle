@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.seestore'
+    namespace 'com.example.seeStore'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.seestore"
+        applicationId "com.example.seeStore"
         minSdk 24
         targetSdk 33
         versionCode 1

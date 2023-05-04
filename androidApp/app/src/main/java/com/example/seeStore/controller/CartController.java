@@ -1,10 +1,10 @@
-package com.example.seestore.controller;
+package com.example.seeStore.controller;
 
 import android.content.Context;
 
 
-import com.example.seestore.model.OrderItem;
-import com.example.seestore.model.Product;
+import com.example.seeStore.model.OrderItem;
+import com.example.seeStore.model.Product;
 
 import java.util.List;
 

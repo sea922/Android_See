@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">SeeStore</string>
-    <string name="title_activity_main">See</string>
+    <string name="title_activity_main">SeeStore</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="back">Back</string>

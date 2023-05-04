@@ -1,4 +1,4 @@
-package com.example.seestore.model;
+package com.example.seeStore.model;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.example.seestore;
+package com.example.seeStore;
 
 import org.junit.Test;
 

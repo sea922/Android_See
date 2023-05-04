@@ -1,10 +1,10 @@
-package com.example.seestore.activity;
+package com.example.seeStore.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-import com.example.seestore.R;
+import com.example.seeStore.R;
 
 public class MainActivity extends AppCompatActivity {
 
