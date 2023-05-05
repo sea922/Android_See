@@ -1,18 +1,19 @@
 package com.example.seeStore.activity;
 
 import android.annotation.SuppressLint;
+import com.example.seeStore.adapter.CartAdapter;
+import com.example.seeStore.controller.CartController;
+import com.example.seeStore.interfaces.ChangeNumberItem;
+import com.example.seeStore.R;
 import android.os.Bundle;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.seeStore.R;
-import com.example.seeStore.adapter.CartAdapter;
-import com.example.seeStore.controller.CartController;
-import com.example.seeStore.interfaces.ChangeNumberItem;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 public class CartActivity extends AppCompatActivity {
     private RecyclerView.Adapter adapter;
@@ -22,7 +23,7 @@ public class CartActivity extends AppCompatActivity {
     TextView subTotalTextView, shippingTextView, totalTextView;
 
     private double total;
-    private ScrollView scrollView;
+    private LinearLayout cartScrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,23 +34,25 @@ public class CartActivity extends AppCompatActivity {
 
         initView();
         initCartList();
-//        renderCart();
-
+        renderCart();
     }
 
     private void initView() {
         cartRecyclerView = findViewById(R.id.cartRecyclerView);
-        scrollView = findViewById(R.id.cartScrollView);
+        cartScrollView = findViewById(R.id.cartScrollView);
+        subTotalTextView = findViewById(R.id.subTotalValueCartTextView);
+        shippingTextView = findViewById(R.id.shippingValueCartTextView);
+        totalTextView = findViewById(R.id.totalValueCartTextView);
     }
 
     private void initCartList() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         cartRecyclerView.setLayoutManager(linearLayoutManager);
-        adapter = new CartAdapter(cartController.getCartList(), this, new ChangeNumberItem() {
 
+        adapter = new CartAdapter(cartController.getCartList(), this, new ChangeNumberItem() {
             @Override
             public void onChanged() {
-
+                renderCart();
             }
         });
 
@@ -61,9 +64,9 @@ public class CartActivity extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     private void renderCart() {
-        double shippingCost = 15000;
         double subTotal = cartController.getSubTotal();
-        double total = subTotal + shippingCost;
+        double shippingCost = (subTotal == -1) ? 0 : 15000;
+        total = subTotal + shippingCost;
 
         subTotalTextView.setText(String.valueOf(subTotal) + " VND");
         shippingTextView.setText(String.valueOf(shippingCost) + " VND");

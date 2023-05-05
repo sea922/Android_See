@@ -10,7 +10,7 @@ public class Product {
     private String category;
     private String color;
     private String description;
-    private Float cost;
+    private Long cost;
     private Integer numStocks;
 
     public String getName() {
@@ -61,11 +61,11 @@ public class Product {
         this.description = description;
     }
 
-    public Float getCost() {
+    public Long getCost() {
         return cost;
     }
 
-    public void setCost(Float cost) {
+    public void setCost(Long cost) {
         this.cost = cost;
     }
 
@@ -83,5 +83,8 @@ public class Product {
 
     public void setImages(List<String> images) {
         this.images = images;
+    }
+
+    public void setInventory(int i) {
     }
 }
