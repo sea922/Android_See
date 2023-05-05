@@ -5,6 +5,8 @@ import com.example.seeStore.adapter.CartAdapter;
 import com.example.seeStore.controller.CartController;
 import com.example.seeStore.interfaces.ChangeNumberItem;
 import com.example.seeStore.R;
+import com.example.seeStore.utils.StringUtils;
+
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,7 +24,7 @@ public class CartActivity extends AppCompatActivity {
 
     TextView subTotalTextView, shippingTextView, totalTextView;
 
-    private double total;
+    private long total;
     private LinearLayout cartScrollView;
 
     @Override
@@ -64,13 +66,13 @@ public class CartActivity extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     private void renderCart() {
-        double subTotal = cartController.getSubTotal();
-        double shippingCost = (subTotal == -1) ? 0 : 15000;
+        long subTotal = cartController.getSubTotal();
+        long shippingCost = (subTotal == -1) ? 0 : 15000;
         total = subTotal + shippingCost;
 
-        subTotalTextView.setText(String.valueOf(subTotal) + " VND");
-        shippingTextView.setText(String.valueOf(shippingCost) + " VND");
-        totalTextView.setText(String.valueOf(total) + "VND");
+        subTotalTextView.setText(StringUtils.long2money(subTotal) + " VND");
+        shippingTextView.setText(StringUtils.long2money(shippingCost) + " VND");
+        totalTextView.setText(StringUtils.long2money(total) + "VND");
 
 
     }

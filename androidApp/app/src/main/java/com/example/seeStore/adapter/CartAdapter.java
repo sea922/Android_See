@@ -9,6 +9,8 @@ import com.example.seeStore.interfaces.ChangeNumberItem;
 import com.example.seeStore.R;
 import com.example.seeStore.model.OrderItem;
 import com.example.seeStore.model.Product;
+import com.example.seeStore.utils.StringUtils;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,7 +63,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
             product.setName("Áo quần");
 
             holder.itemName.setText(product.getName());
-            holder.itemCost.setText(String.valueOf(product.getCost()));
+            holder.itemCost.setText(StringUtils.long2money(product.getCost()));
             holder.numItems.setText(String.valueOf(orderItem.getQuantity()));
 
 //            Context itemViewContext = holder.itemView.getContext();
