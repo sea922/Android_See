@@ -4,6 +4,13 @@
     package="com.example.seeStore">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-feature android:name="android.hardware.camera" android:required="true" />
+    <uses-feature android:name="android.hardware.camera.autofocus"  />
+    <uses-feature android:name="android.hardware.camera.flash" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="ANDROID.PERMISSION.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="ANDROID.PERMISSION.WRITE_EXTERNAL_STORAGE" />
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,6 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/SeeStore"
         tools:targetApi="31">
+
         <activity
             android:name=".activity.CartActivity"
             android:exported="false"
