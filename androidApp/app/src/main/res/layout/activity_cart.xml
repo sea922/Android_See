@@ -8,7 +8,7 @@
     android:background="@drawable/background">
 
     <LinearLayout
-        android:id="@+id/cartScrollView"
+        android:id="@+id/cartLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -27,7 +27,7 @@
                 android:id="@+id/cartTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="10dp"
                 android:fontFamily="@font/quicksand_bold"
                 android:text="@string/cart_header"
                 android:textAlignment="center"
@@ -40,7 +40,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_marginLeft="30dp"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginRight="30dp"
                 android:layout_marginBottom="10dp"
                 android:layout_weight="1"/>
@@ -70,7 +70,8 @@
                     android:layout_weight="1"
                     android:textSize="18sp"
                     android:fontFamily="@font/quicksand_bold"
-                    android:text="TextView" />
+                    android:text="TextView"
+                    android:textAlignment="viewEnd"/>
             </LinearLayout>
 
             <LinearLayout
@@ -98,7 +99,8 @@
                     android:layout_weight="1"
                     android:textSize="18sp"
                     android:fontFamily="@font/quicksand_bold"
-                    android:text="TextView" />
+                    android:text="TextView"
+                    android:textAlignment="viewEnd" />
             </LinearLayout>
 
 
@@ -110,7 +112,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="30dp"
                 android:layout_marginBottom="10dp"
-                android:background="@drawable/light_line" />
+                android:background="@drawable/dotted_line" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -143,12 +145,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginRight="30dp"
-                android:layout_marginBottom="30dp"
+                android:layout_marginBottom="20dp"
                 android:backgroundTint="@color/primary"
                 app:cornerRadius="10dp"
                 android:fontFamily="@font/quicksand_bold"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:textSize="16sp"
+                android:textAllCaps="false"
                 android:text="@string/check_out"/>
         </LinearLayout>
     </LinearLayout>
