@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".activity.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,7 +18,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="300dp"
-                android:src="@drawable/screenshot_3" />
+                android:src="@drawable/search_product" />
         </LinearLayout>
 
         <!-- Search and Cart -->
