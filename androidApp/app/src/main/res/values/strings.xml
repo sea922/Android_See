@@ -11,5 +11,7 @@
     <string name="sub_total">Tổng cộng</string>
     <string name="shipping">Vận chuyển</string>
     <string name="cart_header">Vận chuyển</string>
+    <string name="error_message">\"Lỗi\"</string>
+    <string name="search_hint">\"Tìm kiếm\"</string>
 
 </resources>

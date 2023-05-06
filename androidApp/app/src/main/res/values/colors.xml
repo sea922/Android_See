@@ -17,4 +17,7 @@
     <color name="text">#333</color>
     <color name="text_light">#888</color>
 
+    <color name="dark">#181817</color>
+    <color name="dark_gray">#222222</color>
+    <color name="gray">#AAACAE</color>
 </resources>
