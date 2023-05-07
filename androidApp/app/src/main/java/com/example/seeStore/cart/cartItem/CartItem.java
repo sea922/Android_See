@@ -1,4 +1,4 @@
-package com.example.seeStore.cart;
+package com.example.seeStore.cart.cartItem;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;

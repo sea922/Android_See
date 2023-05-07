@@ -1,57 +1,114 @@
-package com.example.seeStore.controller;
+package com.example.seeStore.cart;
 
 import android.content.Context;
+import android.util.Log;
 
 
+import com.example.seeStore.cart.cartItem.CartItem;
+import com.example.seeStore.cart.cartItem.CartItemDB;
+import com.example.seeStore.interfaces.ChangeNumberItem;
 import com.example.seeStore.model.OrderItem;
 import com.example.seeStore.model.Product;
 
 import java.util.List;
 import java.util.ArrayList;
 public class CartController {
-    private Context context;
-    private List<OrderItem> orderItemList;
+    private static final String TAG = CartController.class.getName();
 
-    public CartController(Context context) {
+    private List<CartItem> cartItemList;
+    private List<Product> productList = new ArrayList<>();
+
+    private CartItemDB cartItemDB;
+    private final Context context;
+
+    private CartController(Context context) {
         this.context = context;
-
-        Long i = new Long(0);
-        OrderItem orderItem = new OrderItem();
-        orderItem.setQuantity(150);
-        orderItem.setProductId(i++);
-        List<OrderItem> orderItemList = new ArrayList<>();
-        orderItemList.add(orderItem);
-//        orderItemList.add(orderItem);
-//        orderItemList.add(orderItem);
-//        orderItemList.add(orderItem);
-//        orderItemList.add(orderItem);
-        this.orderItemList = orderItemList;
-    }
-
-    public List<OrderItem> getCartList() {
-        return orderItemList;
-    }
-
-    public long getSubTotal() {
         try {
-            long result = 0l;
+            Log.d(TAG, "CartController: retrieving cart items data");
+            cartItemDB = CartItemDB.with(context);
+            cartItemList = cartItemDB.orderItemDao().loadAll();
+            Log.d(TAG, "CartController: retrieving cart successfully");
+            Log.d(TAG, "Length: " + cartItemList.size());
+        } catch (Exception e) {
+            Log.d(TAG, "CartController: failed to retrieve cart items data");
+            e.printStackTrace();
+        }
+    }
 
-            for (OrderItem item : orderItemList) {
-                //            result += item.getCost();
+    public static CartController with(Context context) {
+        return new CartController(context);
+    }
+
+    public void addToCart(CartItem cartItem) {
+        try {
+            // update on database
+            cartItemDB.orderItemDao().insert(cartItem);
+            cartItemList.add(cartItem);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<CartItem> getCartList() {
+        return cartItemList;
+    }
+
+    public void setProductList(List<Product> productList) {
+        this.productList.clear();
+        for (int i = 0; i < cartItemList.size(); i++) {
+            for (int j = 0; j < productList.size(); j++) {
+                if (cartItemList.get(i).getProductId() == productList.get(j).getId()) {
+                    this.productList.add(productList.get(j));
+                    break;
+                }
             }
-            return result;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return -1l;
         }
     }
 
-    public int getOrderListSize() {
-        try {
-            return orderItemList.size();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return -1;
+    public List<Product> getProductList() {
+        return productList;
+    }
+
+    public void increaseNumItems(int position, ChangeNumberItem changeNumItemsListener) {
+        CartItem cartItem = cartItemList.get(position);
+
+        // update on database
+        cartItemDB.orderItemDao().increaseQuantity(cartItem.getProductId());
+
+        // update on code
+        cartItem.setQuantity(cartItem.getQuantity() + 1);
+        cartItemList.set(position, cartItem);
+
+        changeNumItemsListener.onChanged();
+    }
+
+    public void decreaseNumItems(int position, ChangeNumberItem changeNumItemsListener) {
+        CartItem cartItem = cartItemList.get(position);
+
+        if (cartItemList.get(position).getQuantity() > 1) {
+            // update on database
+            cartItemDB.orderItemDao().decreaseQuantity(cartItem.getProductId());
+
+            // update on code
+            cartItem.setQuantity(cartItem.getQuantity() - 1);
+            cartItemList.set(position, cartItem);
+
+            changeNumItemsListener.onChanged();
         }
+    }
+
+    public void deleteItem(int position, ChangeNumberItem changeNumItemsListener) {
+        if (position == -1)
+            return;
+
+        // update on database
+        cartItemDB.orderItemDao().delete(cartItemList.get(position));
+
+        // update on code
+        cartItemList.remove(position);
+        productList.remove(position);
+
+        changeNumItemsListener.onChanged();
     }
 }
