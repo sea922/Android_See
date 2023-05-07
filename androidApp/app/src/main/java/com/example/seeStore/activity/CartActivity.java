@@ -2,7 +2,7 @@ package com.example.seeStore.activity;
 
 import android.annotation.SuppressLint;
 import com.example.seeStore.adapter.CartAdapter;
-import com.example.seeStore.controller.CartController;
+import com.example.seeStore.cart.CartController;
 import com.example.seeStore.interfaces.ChangeNumberItem;
 import com.example.seeStore.R;
 import com.example.seeStore.utils.StringUtils;
@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -26,7 +25,6 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class CartActivity extends AppCompatActivity {
     private RecyclerView.Adapter adapter;
@@ -44,11 +42,11 @@ public class CartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
 
-        cartController = new CartController(this);
+        //cartController = new CartController(this);
 
-        initView();
-        initCartList();
-        renderCart();
+        //initView();
+        //initCartList();
+        //renderCart();
     }
 
     private void initView() {
@@ -63,12 +61,12 @@ public class CartActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         cartRecyclerView.setLayoutManager(linearLayoutManager);
 
-        adapter = new CartAdapter(cartController.getCartList(), this, new ChangeNumberItem() {
-            @Override
-            public void onChanged() {
-                renderCart();
-            }
-        });
+//        adapter = new CartAdapter(cartController.getCartList(), this, new ChangeNumberItem() {
+//            @Override
+//            public void onChanged() {
+//                renderCart();
+//            }
+//        });
 
         cartRecyclerView.setAdapter(adapter);
         if (cartController.getCartList() != null && cartController.getCartList().isEmpty()) {
@@ -103,13 +101,13 @@ public class CartActivity extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     private void renderCart() {
-        long subTotal = cartController.getSubTotal();
-        long shippingCost = (subTotal == -1) ? 0 : 15000;
-        total = subTotal + shippingCost;
+        //long subTotal = cartController.getSubTotal();
+        //long shippingCost = (subTotal == -1) ? 0 : 15000;
+        //total = subTotal + shippingCost;
 
-        subTotalTextView.setText(StringUtils.long2money(subTotal) + " VND");
-        shippingTextView.setText(StringUtils.long2money(shippingCost) + " VND");
-        totalTextView.setText(StringUtils.long2money(total) + "VND");
+//        subTotalTextView.setText(StringUtils.long2money(subTotal) + " VND");
+//        shippingTextView.setText(StringUtils.long2money(shippingCost) + " VND");
+//        totalTextView.setText(StringUtils.long2money(total) + "VND");
 
 
     }

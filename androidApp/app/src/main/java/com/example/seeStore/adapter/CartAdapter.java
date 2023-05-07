@@ -1,143 +1,167 @@
 package com.example.seeStore.adapter;
 
+import static com.example.seeStore.utils.StringUtils.vndFormatPrice;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 
 import com.bumptech.glide.Glide;
-import com.example.seeStore.controller.CartController;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.seeStore.activity.ProductDetailActivity;
+import com.example.seeStore.cart.CartController;
+import com.example.seeStore.cart.cartItem.CartItem;
+import com.example.seeStore.fragment.CartFragment;
 import com.example.seeStore.interfaces.ChangeNumberItem;
 import com.example.seeStore.R;
-import com.example.seeStore.model.OrderItem;
 import com.example.seeStore.model.Product;
-import com.example.seeStore.utils.StringUtils;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
-    private List<OrderItem> orderItemList;
-    private CartController cartController;
-    private ChangeNumberItem changeNumberItem;
-    private Context parentContext;
+    private static final String TAG = CartAdapter.class.getName();
 
-    public CartAdapter(List<OrderItem> orderItemList, Context context, ChangeNumberItem changeNumItemsListener) {
-        this.orderItemList = orderItemList;
-        this.cartController = new CartController(context);
-        this.changeNumberItem = changeNumItemsListener;
-        this.parentContext = context;
+    private final List<CartItem> cartItemList;
+    private final List<Product> productList;
+    private final ChangeNumberItem changeNumItemsListener;
+
+    private final CartController cartController;
+
+    private final Context context;
+
+
+    public CartAdapter(CartController cartController, Context context, ChangeNumberItem changeNumItemsListener) {
+        this.cartItemList = cartController.getCartList();
+        this.productList = cartController.getProductList();
+        this.cartController = cartController;
+        this.changeNumItemsListener = changeNumItemsListener;
+        this.context = context;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View inflater = LayoutInflater.from(parent.getContext()).inflate(R.layout.cart_view_holder, parent, false);
-
+        View inflater = LayoutInflater.from(parent.getContext()).inflate(R.layout.cart_item, parent, false);
         return new ViewHolder(inflater);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        try {
-            OrderItem orderItem = orderItemList.get(position);
+        Product product = productList.get(position);
+        CartItem item = cartItemList.get(position);
 
-            // TODO: change this product into the relevant product item to the order item
-            Product product = new Product();
-            product.setId(0l);
-            List<String> images = new ArrayList<>();
-            images.add("https://bizweb.sapocdn.net/100/438/408/products/akn5040-den-4.jpg?v=1668244848000");
-            images.add("https://bizweb.sapocdn.net/100/438/408/products/akn5040-den-5-308a032a-f9a4-4fb3-b73b-348e31c695db.jpg?v=1669013097000");
-            product.setImages(images);
-            product.setSex("nu");
-            product.setCategory("ao-khoac-nu");
-            product.setCost(499000l);
-            product.setInventory(109);
-            product.setName("Áo quần");
-
-            holder.itemName.setText(product.getName());
-            holder.itemCost.setText(StringUtils.long2money(product.getCost()));
-            holder.numItems.setText(String.valueOf(orderItem.getQuantity()));
-
-//            Context itemViewContext = holder.itemView.getContext();
-//            int imageResource = itemViewContext.getResources()
-//                    .getIdentifier(product.getImages().get(0), null, itemViewContext.getPackageName());
-
-            String imageUri = product.getImages().get(0);
-
-            Glide.with(parentContext).load(imageUri).centerCrop().placeholder(R.drawable.item_placeholder).into(holder.itemImageUri);
-            holder.incItem.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //                cartController.increaseNumItems(garmentList, position, new ChangeNumItemsListener() {
-                    //                    @Override
-                    //                    public void onChanged() {
-                    //                        changeNumItemsListener.onChanged();
-                    //                    }
-                    //                });
-                }
-            });
-
-            holder.decItem.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //                cartController.decreaseNumItems(garmentList, position, new ChangeNumItemsListener() {
-                    //                    @Override
-                    //                    public void onChanged() {
-                    //                        changeNumItemsListener.onChanged();
-                    //                    }
-                    //                });
-                }
-            });
-
-            holder.removeItem.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //                cartManager.removeItem(garmentList, position, new ChangeNumItemsListener() {
-                    //                    @Override
-                    //                    public void onChanged() {
-                    //                        changeNumItemsListener.onChanged();
-                    //                    }
-                    //                });
-                }
-            });
-        } catch (NullPointerException e) {
-            System.out.println("Garment list is empty");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+        holder.itemName.setText(product.getName());
+        holder.itemPrice.setText(vndFormatPrice(product.getPrice()));
+        holder.itemQuantity.setText(String.valueOf(item.getQuantity()));
+        holder.itemSize.setText("Size " + item.getSize());
+        Glide.with(context)
+                .load(productList.get(position).getFirstImageURL())
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(R.drawable.item_placeholder)
+                .into(holder.itemImage);
     }
 
     @Override
     public int getItemCount() {
-        try {
-            return orderItemList.size();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return -1;
-        }
+        return cartItemList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView itemName, itemCost, numItems;
-        ImageView itemImageUri, incItem, decItem, removeItem;
+        TextView itemName, itemPrice, itemSize, itemQuantity;
+        ImageView itemImage, itemRemoveBtn;
+        ImageButton itemIncBtn, itemDecBtn;
+        LinearLayout itemWrapper;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             itemName = itemView.findViewById(R.id.cartViewHolderName);
-            itemCost = itemView.findViewById(R.id.itemsCost);
-            itemImageUri = itemView.findViewById(R.id.cartViewHolderImage);
-            numItems = itemView.findViewById(R.id.cartNumItemsTextView);
-            incItem = itemView.findViewById(R.id.cartItemIncrease);
-            decItem = itemView.findViewById(R.id.cartItemDecrease);
-            removeItem = itemView.findViewById(R.id.cartItemRemoveBtn);
+            itemPrice = itemView.findViewById(R.id.cartViewHolderPrice);
+            itemSize = itemView.findViewById(R.id.cartViewHolderSize);
+            itemQuantity = itemView.findViewById(R.id.cartViewHolderQuantity);
+            itemImage = itemView.findViewById(R.id.cartViewHolderImage);
+            itemRemoveBtn = itemView.findViewById(R.id.cartViewHolderRemoveBtn);
+            itemIncBtn = itemView.findViewById(R.id.cartViewHolderIncBtn);
+            itemDecBtn = itemView.findViewById(R.id.cartViewHolderDecBtn);
+            itemWrapper = itemView.findViewById(R.id.cartViewHolderWrapper);
+            setEvents();
+        }
+
+        private void setEvents() {
+            itemIncBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // update on the database
+                    cartController.increaseNumItems(getAdapterPosition(), new ChangeNumberItem() {
+                        @Override
+                        public void onChanged() {
+                            notifyDataSetChanged();
+                            changeNumItemsListener.onChanged();
+                        }
+                    });
+
+                    // update UI
+                    int quantity = Integer.parseInt(itemQuantity.getText().toString());
+                    quantity++;
+                    itemQuantity.setText(String.valueOf(quantity));
+                }
+            });
+
+            itemDecBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    cartController.decreaseNumItems(getAdapterPosition(), new ChangeNumberItem() {
+                        @Override
+                        public void onChanged() {
+                            notifyDataSetChanged();
+                            changeNumItemsListener.onChanged();
+                        }
+                    });
+
+                    // update UI
+                    int quantity = Integer.parseInt(itemQuantity.getText().toString());
+                    if (quantity > 1) {
+                        quantity--;
+                        itemQuantity.setText(String.valueOf(quantity));
+                    }
+                }
+            });
+
+            itemRemoveBtn.setOnClickListener(new View.OnClickListener() {
+                @SuppressLint("NotifyDataSetChanged")
+                @Override
+                public void onClick(View view) {
+                    cartController.deleteItem(getAdapterPosition(), new ChangeNumberItem() {
+                        @Override
+                        public void onChanged() {
+                            notifyDataSetChanged();
+                            changeNumItemsListener.onChanged();
+                        }
+                    });
+                }
+            });
+
+            itemWrapper.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Product productItem = productList.get(getAdapterPosition());
+                    Intent intent = new Intent(context, ProductDetailActivity.class);
+                    intent.putExtra("productId", productItem.getId());
+                    intent.putExtra("previousFragment", CartFragment.TAG);
+                    context.startActivity(intent);
+                }
+            });
         }
     }
 }
