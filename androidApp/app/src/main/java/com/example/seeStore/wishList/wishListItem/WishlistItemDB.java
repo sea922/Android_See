@@ -1,26 +1,26 @@
 package com.example.seeStore.wishList.wishListItem;
 
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
+import android.content.Context;
 
-@Entity
-public class WishlistItem {
-    @PrimaryKey
-    @ColumnInfo(name = "product_id")
-    private Long productId;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
 
-    public WishlistItem() { }
+import com.example.seeStore.wishList.wishListItem.WishlistItem;
+import com.example.seeStore.wishList.wishListItem.WishlistItemDao;
 
-    public WishlistItem(Long productId) {
-        this.productId = productId;
-    }
+@Database(entities = {WishlistItem.class}, version = 1)
+public abstract class WishlistItemDB extends RoomDatabase {
+    private static final String WISHLIST_ITEM_DB = "wishlist_item.db";
 
-    public Long getProductId() {
-        return productId;
-    }
+    public abstract WishlistItemDao wishlistItemDao();
 
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    private static com.example.seeStore.wishList.wishListItem.WishlistItemDB wishlistItemDB;
+
+    public static com.example.seeStore.wishList.wishListItem.WishlistItemDB with(Context context) {
+        if (wishlistItemDB == null) {
+            wishlistItemDB = Room.databaseBuilder(context.getApplicationContext(), com.example.seeStore.wishList.wishListItem.WishlistItemDB.class, WISHLIST_ITEM_DB).allowMainThreadQueries().build();
+        }
+        return wishlistItemDB;
     }
 }

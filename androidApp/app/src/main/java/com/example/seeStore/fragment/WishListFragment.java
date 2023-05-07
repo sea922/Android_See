@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -21,11 +22,16 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.seeStore.CustomWidget.MySnackbar;
 import com.example.seeStore.R;
 import com.example.seeStore.activity.SearchActivity;
 import com.example.seeStore.adapter.CategoryTagListAdapter;
+import com.example.seeStore.adapter.WishListAdapter;
+import com.example.seeStore.interfaces.ChangeNumberItem;
 import com.example.seeStore.model.Product;
 import com.example.seeStore.provider.Provider;
+import com.example.seeStore.wishList.WishListController;
+import com.example.seeStore.wishList.wishListItem.WishlistItem;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
@@ -34,253 +40,153 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
-public class ProductListFragment extends Fragment {
-    public static final String TAG = "ProductListFragment";
-    private FrameLayout parentView;
-    private TextView currentCateText;
-    private TextView productSearchBarText;
-    private LinearLayout searchBar;
-    private LinearLayout currentCateWrapper;
-    private LinearLayout loadingWrapper;
-    private LinearLayout emptyWrapper;
-    private FloatingActionButton floatBtn;
+public class WishListFragment extends Fragment {
+    public static final String TAG = "WishlistFragment";
 
-    public ProductListFragment() {
+    private FrameLayout parentView;
+    private ImageButton navbarBtn;
+    private RecyclerView wishlistRecyclerView;
+    private WishListController wishlistController;
+    private LinearLayout wishlistLayout, wishlistEmptyWrapper, wishlistLoadingWrapper;
+    private ImageButton wishlistBackBtn;
+
+    public WishListFragment() {
         // Required empty public constructor
-        super(R.layout.fragment_product_list);
+        super(R.layout.fragment_wishlist);
+    }
+
+    public WishListFragment(ImageButton navbarBtn) {
+        super(R.layout.fragment_home);
+        this.navbarBtn = navbarBtn;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Provider.with(this.getContext()).setCurrentFragment(TAG);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         Provider.with(this.getContext()).setCurrentFragment(TAG);
-        return inflater.inflate(R.layout.fragment_product_list, container, false);
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_wishlist, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        System.out.println("ProductListFragment.onViewCreated");
+        if (navbarBtn != null)
+            navbarBtn.setImageResource(R.drawable.ic_wishlist_filled);
+
+        wishlistController = WishListController.with(this.getContext());
+
         initViews();
         setEvents();
-        setupCategoryLists();
-        handleAPICalls();
-        updateTextsBaseOnIntent();
+        showWishlistItems();
     }
 
     private void initViews() {
-        parentView = getView().findViewById(R.id.productParentView);
-        currentCateText = getView().findViewById(R.id.productCurrentCateText);
-        productSearchBarText = getView().findViewById(R.id.productSearchBarText);
-        searchBar = getView().findViewById(R.id.productSearchBar);
-        currentCateWrapper = getView().findViewById(R.id.productCurrentCateWrapper);
-        loadingWrapper = getView().findViewById(R.id.productLoadingWrapper);
-        emptyWrapper = getView().findViewById(R.id.productEmptyWrapper);
-        floatBtn = getView().findViewById(R.id.productFloatBtn);
+        parentView = requireView().findViewById(R.id.wishlistParentView);
+        wishlistLayout = requireView().findViewById(R.id.wishlistLayout);
+        wishlistEmptyWrapper = requireView().findViewById(R.id.wishlistEmptyWrapper);
+        wishlistLoadingWrapper = requireView().findViewById(R.id.wishlistLoadingWrapper);
+        wishlistRecyclerView = requireView().findViewById(R.id.wishlistRecyclerView);
+        wishlistBackBtn = requireView().findViewById(R.id.wishlistBackBtn);
     }
 
     private void setEvents() {
-        searchBar.setOnClickListener(new View.OnClickListener() {
+        wishlistBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), SearchActivity.class);
-                intent.putExtra("previousFragment", TAG);
-                startActivity(intent);
-            }
-        });
-
-        floatBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // scroll to top
-                NestedScrollView layout = getView().findViewById(R.id.productBaseWrapper);
-                layout.smoothScrollTo(0, 0);
+            public void onClick(View v) {
+                getActivity().onBackPressed();
             }
         });
     }
 
+    private void showWishlistItems() {
+        if (wishlistController.getWishlistItemList().size() == 0) {
+            wishlistEmptyWrapper.setVisibility(View.VISIBLE);
+            wishlistLoadingWrapper.setVisibility(View.GONE);
+            wishlistLayout.setVisibility(View.GONE);
+            return;
+        }
 
-    private void setupCategoryLists() {
-        // find views
-        RecyclerView maleView = getView().findViewById(R.id.productMaleCategoryTagList);
-        RecyclerView femaleView = getView().findViewById(R.id.productFemaleCategoryTagList);
+        ArrayList<Long> productIds = new ArrayList<>();
+        for (WishlistItem wishlistItem : wishlistController.getWishlistItemList()) {
+            productIds.add(wishlistItem.getProductId());
+        }
 
-        // category list for male
-        LinearLayoutManager maleLayout = new LinearLayoutManager(this.getContext(), LinearLayoutManager.HORIZONTAL, false);
-        maleView.setLayoutManager(maleLayout);
-        CategoryTagListAdapter maleAdapter = new CategoryTagListAdapter(this);
-        maleAdapter.setCategoryList(Provider.with(this.getContext()).getCategoryList("nam"));
-        maleView.setAdapter(maleAdapter);
-
-        // category list for female
-        LinearLayoutManager femaleLayout = new LinearLayoutManager(this.getContext(), LinearLayoutManager.HORIZONTAL, false);
-        femaleView.setLayoutManager(femaleLayout);
-        CategoryTagListAdapter femaleAdapter = new CategoryTagListAdapter(this);
-        femaleAdapter.setCategoryList(Provider.with(this.getContext()).getCategoryList("nu"));
-
-        femaleView.setAdapter(femaleAdapter);
-    }
-
-
-    private void handleAPICalls() {
-        // start loading effect
-        loadingWrapper.setVisibility(View.VISIBLE);
-
-        Bundle args = getArguments();
-        String method = args.getString("method");
-        if (method == null) {
-            // GET requests
-            String searchParams = parseSearchParams(args);
-            String url = "http://192.168.88:8000/api/" + searchParams;
-            JsonObjectRequest getRequest = new JsonObjectRequest (
-                    Request.Method.GET,
-                    url,
-                    null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            handleResponse(response);
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            handleError(error);
-                        }
+        // call API to get products
+        wishlistLoadingWrapper.setVisibility(View.VISIBLE);
+        String entry = "product-list";
+        String params = "id=";
+        for (int i = 0; i < productIds.size(); i++) {
+            params += String.valueOf(productIds.get(i));
+            if (i != productIds.size() - 1)
+                params += ",";
+        }
+        String url = "http://192.168.88:8000/api/" + entry + "?" + params;
+        JsonObjectRequest getRequest = new JsonObjectRequest (
+                Request.Method.GET,
+                url,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        handleResponse(response);
                     }
-            );
-            Provider.with(this.getContext()).addToRequestQueue(getRequest);
-        }
-        else if (method.equals("post")) {
-            System.out.println("post image");
-
-            // POST requests
-            String entry = args.getString("entry");
-//            String query = args.getString("query");
-            HashMap<String, String> params = new HashMap<>();
-            params.put("query", Provider.with(getContext()).getImageBase64());
-
-            String url = "http://192.168.88:8000/api/" + entry + "/";
-            System.out.println(url);
-            JsonObjectRequest postRequest = new JsonObjectRequest (
-                    url,
-                    new JSONObject(params),
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            System.out.println("post response");
-                            handleResponse(response);
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            System.out.println("post error");
-                            handleError(error);
-                        }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        wishlistLoadingWrapper.setVisibility(View.GONE);
+                        MySnackbar.inforSnackar(getContext(), parentView, getString(R.string.error_message)).show();
                     }
-            );
-            Provider.with(this.getContext()).addToRequestQueue(postRequest);
-        }
-    }
-
-    private String parseSearchParams(Bundle args) {
-        HashMap<String, String> params = new HashMap<>();
-        String entry = args.getString("entry");
-
-        if (entry.equals("search")) {
-            String query = args.getString("query");
-            params.put("query", query);
-        }
-        else if (entry.equals("product-list")) {
-            String sex = args.getString("sex");
-            String categoryRaw = args.getString("categoryRaw");
-            if (sex != null)
-                params.put("sex", sex);
-
-            if (categoryRaw != null) {
-                params.remove("sex");
-                params.put("category", categoryRaw);
-            }
-        }
-
-        StringBuilder url = new StringBuilder(entry + "?");
-        for (String key : params.keySet()) {
-            url.append(key).append("=").append(params.get(key)).append("&");
-        }
-        return url.substring(0, url.length() - 1);
-    }
-
-    private void handleError(VolleyError error) {
-        loadingWrapper.setVisibility(View.GONE);
-        MySnackbar.inforSnackar(getContext(), parentView, getString(R.string.error_message)).show();
+                }
+        );
+        Provider.with(this.getContext()).addToRequestQueue(getRequest);
     }
 
     private void handleResponse(JSONObject response) {
-        loadingWrapper.setVisibility(View.GONE);
-        ArrayList<Product> productList = parseProductListFromResponse(response);
-        setupProductList(productList);
-    }
+        wishlistLoadingWrapper.setVisibility(View.GONE);
 
-    private ArrayList<Product> parseProductListFromResponse(JSONObject response) {
-        ArrayList<Product> productList = new ArrayList<>();
+        // Get the information of products in cart
+        List<Product> wishlistProducts = Product.parseProductListFromResponse(response);
+        wishlistController.setProductList(wishlistProducts);
 
-        try {
-            JSONArray keys = response.names();
-            for (int i = 0; i < Objects.requireNonNull(keys).length(); i++) {
-                String key = keys.getString(i);
-                JSONArray products = (JSONArray)response.get(key);
-                for (int j = 0; j < products.length(); j++) {
-                    productList.add(Product.parseJSON((JSONObject)products.get(j)));
-                }
+        WishListAdapter adapter = new WishListAdapter(wishlistController, this.getContext(), new ChangeNumberItem() {
+            @Override
+            public void onChanged() {
+                showWishlistLayout(wishlistController.getProductList().isEmpty());
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        });
 
-        return productList;
+        wishlistRecyclerView.setAdapter(adapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this.getContext());
+        wishlistRecyclerView.setLayoutManager(layoutManager);
+
+        showWishlistLayout(wishlistProducts.isEmpty());
     }
 
-    private void setupProductList(ArrayList<Product> productList) {
-        RecyclerView productListView = getView().findViewById(R.id.productListWrapper);
-        GridLayoutManager layout = new GridLayoutManager(this.getContext(), 2);
-        productListView.setLayoutManager(layout);
-
-        ProductListAdapter adapter = new ProductListAdapter(this.getContext());
-        adapter.setProductList(productList);
-
-        if (productList.size() == 0) {
-            emptyWrapper.setVisibility(View.VISIBLE);
+    private void showWishlistLayout(boolean isEmpty) {
+        if (isEmpty) {
+            wishlistEmptyWrapper.setVisibility(View.VISIBLE);
+            wishlistLayout.setVisibility(View.GONE);
         } else {
-            emptyWrapper.setVisibility(View.GONE);
-            productListView.setAdapter(adapter);
+            wishlistEmptyWrapper.setVisibility(View.GONE);
+            wishlistLayout.setVisibility(View.VISIBLE);
         }
     }
 
-    private void updateTextsBaseOnIntent() {
-        Bundle args = getArguments();
-        String categoryName = args.getString("categoryName");
-        if (categoryName != null) {
-            currentCateWrapper.setVisibility(View.VISIBLE);
-            currentCateText.setText(categoryName);
-        } else
-            currentCateWrapper.setVisibility(View.GONE);
-
-        String entry = args.getString("entry");
-        if (entry.equals("search")) {
-            String method = args.getString("method");
-            if (method == null) {
-                String query = args.getString("query");
-                productSearchBarText.setText(query);
-                productSearchBarText.setTextColor(this.getContext().getColor(R.color.primary));
-            } else {
-                productSearchBarText.setText(getString(R.string.search_hint));
-                productSearchBarText.setTextColor(this.getContext().getColor(R.color.text_light));
-            }
-        }
+    @Override
+    public void onDestroyView() {
+        if (navbarBtn != null)
+            navbarBtn.setImageResource(R.drawable.ic_wishlist);
+        super.onDestroyView();
     }
-
 }
