@@ -27,6 +27,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import com.example.seeStore.CustomWidget.MySnackbar;
 import com.example.seeStore.CustomWidget.MyToast;
 import com.example.seeStore.R;
 import com.example.seeStore.adapter.MapMarkerInfoAdapter;
@@ -61,9 +62,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private BranchLocation nearestBranch ;
     private BranchLocation branchLocation;
+
     private BranchLocation currentLocation;
 
     private LinearLayout loadingWrapper;
+    private LinearLayout mapParentView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +75,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
         nearestBranch = null;
 
+        mapParentView = findViewById(R.id.mapParentView);
         loadingWrapper = findViewById(R.id.mapLoadingWrapper);
         loadingWrapper.setVisibility(View.VISIBLE);
 
@@ -114,7 +118,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        MyToast.makeText(MapActivity.this, "Đã có lỗi xảy ra. Bạn vui lòng thử lại sau nhé", Toast.LENGTH_SHORT);
+                        MySnackbar.inforSnackar(MapActivity.this, mapParentView, getString(R.string.error_message)).show();
                         Log.d(TAG, "onErrorResponse: VolleyError: " + error);
                         loadingWrapper.setVisibility(View.GONE);
                     }

@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,11 +14,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.seeStore.CustomWidget.MySnackbar;
 import com.example.seeStore.CustomWidget.MyToast;
 import com.example.seeStore.R;
 import com.example.seeStore.cart.CartController;
 import com.example.seeStore.cart.cartItem.CartItem;
 import com.example.seeStore.cart.cartItem.CartItemDB;
+import com.example.seeStore.fragment.CartFragment;
 import com.example.seeStore.provider.Provider;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -30,6 +35,9 @@ public class OrderActivity extends AppCompatActivity {
 
     private TextInputEditText orderName, orderEmail, orderPhone, orderAddress;
     private MaterialButton orderCheckout;
+    private RelativeLayout orderParentView;
+    private LinearLayout orderLoadingWrapper;
+    private ImageButton orderBackBtn;
 
     private List<CartItem> cartInfo;
 
@@ -58,11 +66,14 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        orderParentView = findViewById(R.id.orderParentView);
+        orderLoadingWrapper = findViewById(R.id.orderLoadingWrapper);
         orderName = findViewById(R.id.orderName);
         orderEmail = findViewById(R.id.orderEmail);
         orderPhone = findViewById(R.id.orderPhone);
         orderAddress = findViewById(R.id.orderAddress);
         orderCheckout = findViewById(R.id.orderCheckout);
+        orderBackBtn = findViewById(R.id.orderBackBtn);
     }
     private void setEvents() {
         orderCheckout.setOnClickListener(new View.OnClickListener() {
@@ -72,11 +83,9 @@ public class OrderActivity extends AppCompatActivity {
                 String entry = "process-order";
 
                 try {
-
-
                     JSONObject cartParams = new JSONObject();
                     JSONObject itemHM = new JSONObject();
-                    for (CartItem item : cartInfo) {
+                    for(CartItem item: cartInfo) {
                         JSONObject sizeHM = new JSONObject();
                         sizeHM.put(item.getSize(), item.getQuantity());
                         itemHM.put(item.getProductId().toString(), sizeHM);
@@ -91,19 +100,19 @@ public class OrderActivity extends AppCompatActivity {
                     int formValidation = formValidator(customer_name, email, phone, location);
                     switch (formValidation) {
                         case BLANK_INPUT: {
-                            MyToast.makeText(OrderActivity.this, "Vui lòng không để trống thông tin", Toast.LENGTH_SHORT);
+                            MySnackbar.inforSnackar(OrderActivity.this, orderParentView, "Bạn vui lòng cung cấp đầy đủ thông tin nhé").show();
                             return;
                         }
                         case EMAIL_INVALID: {
-                            MyToast.makeText(OrderActivity.this, "Địa chỉ email không hợp lệ, vui lòng thử lại", Toast.LENGTH_SHORT);
+                            MySnackbar.inforSnackar(OrderActivity.this, orderParentView, "Địa chỉ email không hợp lệ. Bạn vui lòng thử lại nhé").show();
                             return;
                         }
                         case PHONE_INVALID: {
-                            MyToast.makeText(OrderActivity.this, "Số điện thoại không hợp lệ, vui lòng thử lại", Toast.LENGTH_SHORT);
+                            MySnackbar.inforSnackar(OrderActivity.this, orderParentView, "Số điện thoại không hợp lệ. Bạn vui lòng thử lại nhé").show();
                             return;
                         }
                         case FORM_VALIDATED: {
-                            MyToast.makeText(OrderActivity.this, "Xin vui lòng chờ trong giây lát", Toast.LENGTH_SHORT);
+//                            MySnackbar.inforSnackar(OrderActivity.this, orderParentView, "Đang xử lý đơn hàng. Bạn vui lòng chờ nhé").show();
                             break;
                         }
                     }
@@ -148,10 +157,17 @@ public class OrderActivity extends AppCompatActivity {
 
             }
         });
+        orderBackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+                finish();
+            }
+        });
     }
 
     private void handleError(VolleyError error) {
-        Toast.makeText(OrderActivity.this, "Đặt hàng không thành công", Toast.LENGTH_SHORT).show();
+        MySnackbar.inforSnackar(OrderActivity.this, orderParentView, getString(R.string.error_message)).show();
     }
 
     private void handleSuccess(JSONObject response) {
@@ -163,15 +179,15 @@ public class OrderActivity extends AppCompatActivity {
 
                 System.out.println("Clear cart successfully");
 
-                Toast.makeText(OrderActivity.this, "Đặt hàng thành công", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(OrderActivity.this, "Đặt hàng thành công", Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(this, MainActivity.class);
                 // TODO: bug when trying to return back to cart fragment
-                intent.putExtra("previousFragment", "cart"); // TODO: change if needed
-                intent.putExtra("nextFragment", "cart");
+                intent.putExtra("nextFragment", CartFragment.TAG);
+                intent.putExtra("message", "Đặt hàng thành công. Bạn vui lòng kiểm tra email nhé!");
                 startActivity(intent);
             } else {
-                Toast.makeText(OrderActivity.this, "Máy chủ đang bảo trì. Xin lỗi vì sự bất tiện này", Toast.LENGTH_SHORT).show();
+                MySnackbar.inforSnackar(OrderActivity.this, orderParentView, getString(R.string.error_message)).show();
             }
         } catch (JSONException jsonException) {
             jsonException.printStackTrace();

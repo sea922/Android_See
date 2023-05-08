@@ -371,6 +371,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             return;
         }
 
+        CartController.with(this).addToCart(new CartItem(productId, quantity, size));
         Snackbar snackbar = Snackbar.make(parentView, "Sản phẩm đã được thêm vào giỏ hàng", Snackbar.LENGTH_SHORT);
         snackbar.setAction(getString(R.string.go_to_cart), new View.OnClickListener() {
             @Override
@@ -384,7 +385,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         textView.setAllCaps(false);
         snackbar.show();
 
-        CartController.with(this).addToCart(new CartItem(productId, quantity, size));
+        //CartController.with(this).addToCart(new CartItem(productId, quantity, size));
     }
 
     public void onDetailAddToWishlistBtnClicked(View view) {
