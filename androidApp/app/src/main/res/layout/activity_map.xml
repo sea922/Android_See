@@ -35,6 +35,7 @@
             android:text="See luôn ở cạnh bạn ở mọi nơi! 🗺️"
             android:textSize="16sp"
             android:textColor="@color/primary"
+            android:textStyle="bold"
             android:lineHeight="20sp"/>
     </LinearLayout>
 

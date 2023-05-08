@@ -1,7 +1,9 @@
 package com.example.seeStore.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Base64;
@@ -42,9 +44,11 @@ public class SearchActivity extends AppCompatActivity {
     private MaterialButton submitBtn;
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_search);
         specifyPreviousFragment();
         initViews();
@@ -167,7 +171,7 @@ public class SearchActivity extends AppCompatActivity {
             return;
         }
         Intent chooseImageIntent = ImagePicker.getPickImageIntent(this);
-        //cameraActivityResultLauncher.launch(chooseImageIntent);
+        cameraActivityResultLauncher.launch(chooseImageIntent);
     }
 
     @Override
