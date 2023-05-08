@@ -42,6 +42,15 @@ public class CartController {
     public void addToCart(CartItem cartItem) {
         try {
             // update on database
+
+            for( CartItem item : cartItemList){
+                if(item.getProductId() == cartItem.getProductId() && item.getSize().equals(cartItem.getSize())) {
+                    item.setQuantity(item.getQuantity() + cartItem.getQuantity());
+                    cartItemDB.orderItemDao().update(item);
+                    return;
+                }
+            }
+
             cartItemDB.orderItemDao().insert(cartItem);
             cartItemList.add(cartItem);
         }
