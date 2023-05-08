@@ -79,7 +79,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         loadingWrapper = findViewById(R.id.mapLoadingWrapper);
         loadingWrapper.setVisibility(View.VISIBLE);
 
-        retrieveBranchLocation();
+        //retrieveBranchLocation();
 
         getLocationPermission();
     }
@@ -237,6 +237,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         Log.d(TAG, "onComplete: found location!");
                         currentLocation = BranchLocation.fromLocation((Location) task.getResult());
                         moveCamera(BranchLocation.toLatLng(currentLocation));
+                        retrieveBranchLocation();
                     } else {
                         Log.d(TAG, "onComplete: current location is null");
                     }
