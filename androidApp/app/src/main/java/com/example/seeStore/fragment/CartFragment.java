@@ -2,6 +2,7 @@ package com.example.seeStore.fragment;
 
 import static com.example.seeStore.utils.StringUtils.vndFormatPrice;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +24,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.seeStore.CustomWidget.MySnackbar;
 import com.example.seeStore.R;
+import com.example.seeStore.activity.OrderActivity;
 import com.example.seeStore.adapter.CartAdapter;
 import com.example.seeStore.cart.CartController;
 import com.example.seeStore.cart.cartItem.CartItem;
@@ -30,6 +32,7 @@ import com.example.seeStore.interfaces.ChangeNumberItem;
 import com.example.seeStore.model.Product;
 
 import com.example.seeStore.provider.Provider;
+import com.google.android.material.button.MaterialButton;
 
 import org.json.JSONObject;
 
@@ -47,6 +50,7 @@ public class CartFragment extends Fragment {
     private CartController cartController;
     private LinearLayout cartLayout, cartEmptyWrapper, cartLoadingWrapper;
     private ImageButton cartBackBtn;
+    private MaterialButton detailAddToCartBtn;
     TextView subTotalText, shippingText, totalText;
 
     public CartFragment() {
@@ -91,6 +95,14 @@ public class CartFragment extends Fragment {
                 requireActivity().onBackPressed();
             }
         });
+
+        detailAddToCartBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(requireActivity().getApplicationContext(), OrderActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initViews() {
@@ -103,6 +115,7 @@ public class CartFragment extends Fragment {
         cartEmptyWrapper = getView().findViewById(R.id.cartEmptyWrapper);
         cartLoadingWrapper = getView().findViewById(R.id.cartLoadingWrapper);
         cartBackBtn = getView().findViewById(R.id.cartBackBtn);
+        detailAddToCartBtn = getView().findViewById(R.id.detailAddToCartBtn);
     }
 
     private void showCartItems() {
