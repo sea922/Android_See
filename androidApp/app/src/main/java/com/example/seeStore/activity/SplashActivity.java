@@ -17,7 +17,7 @@ public class SplashActivity  extends AppCompatActivity {
         setContentView(R.layout.activity_splash );
 
         // Init instance of Singleton class
-        Provider.getInstance();
+        //Provider.getInstance();
 
         new Handler().postDelayed((Runnable) () -> {
             Intent intent = new Intent(SplashActivity.this, CartActivity.class);
