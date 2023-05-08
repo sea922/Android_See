@@ -59,18 +59,18 @@ public class ProductListActivity extends AppCompatActivity {
         RecyclerView femaleView = findViewById(R.id.productFemaleCategoryTagList);
 
         // category list for male
-        CategoryTagListAdapter maleAdapter = new CategoryTagListAdapter(this, maleView, currentRawCategory);
-        maleAdapter.setCategoryList(Provider.getInstance().getCategoryList("nam"));
+        //CategoryTagListAdapter maleAdapter = new CategoryTagListAdapter(this, maleView, currentRawCategory);
+        //maleAdapter.setCategoryList(Provider.getInstance().getCategoryList("nam"));
         LinearLayoutManager maleLayout = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         maleView.setLayoutManager(maleLayout);
-        maleView.setAdapter(maleAdapter);
+        //maleView.setAdapter(maleAdapter);
 
         // category list for female
-        CategoryTagListAdapter femaleAdapter = new CategoryTagListAdapter(this, femaleView, currentRawCategory);
-        femaleAdapter.setCategoryList(Provider.getInstance().getCategoryList("nu"));
+        //CategoryTagListAdapter femaleAdapter = new CategoryTagListAdapter(this, femaleView, currentRawCategory);
+        //femaleAdapter.setCategoryList(Provider.getInstance().getCategoryList("nu"));
         LinearLayoutManager femaleLayout = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         femaleView.setLayoutManager(femaleLayout);
-        femaleView.setAdapter(femaleAdapter);
+        //femaleView.setAdapter(femaleAdapter);
 
         // highlight current category
     }

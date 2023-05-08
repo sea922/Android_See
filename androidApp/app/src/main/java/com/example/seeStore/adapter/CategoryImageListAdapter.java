@@ -2,6 +2,7 @@ package com.example.seeStore.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,20 +11,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.seeStore.R;
 import com.example.seeStore.activity.ProductListActivity;
+import com.example.seeStore.fragment.ProductListFragment;
 import com.example.seeStore.model.Category;
+import com.example.seeStore.provider.Provider;
 
 import java.util.ArrayList;
 
 public class CategoryImageListAdapter extends RecyclerView.Adapter<CategoryImageListAdapter.ViewHolder> {
     private ArrayList<Category> categoryList;
-    private final Context mContext;
+    private Fragment currentFragment;
 
-    public CategoryImageListAdapter(Context mContext) {
-        this.mContext = mContext;
+    public CategoryImageListAdapter(Fragment fragment) {
+        currentFragment = fragment;
     }
 
     @NonNull
@@ -70,12 +76,27 @@ public class CategoryImageListAdapter extends RecyclerView.Adapter<CategoryImage
                 @Override
                 public void onClick(View view) {
                     Category category = categoryList.get(getAdapterPosition());
-                    Intent intent = new Intent(mContext, ProductListActivity.class);
-                    intent.putExtra("category", category.getRaw());
-                    mContext.startActivity(intent);
+                    Fragment fragment = new ProductListFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("entry", "product-list");
+                    bundle.putString("categoryRaw", category.getRaw());
+                    bundle.putString("categoryName", category.getName());
+                    fragment.setArguments(bundle);
+
+                    // Back pressed handling
+                    Intent searchIntent = new Intent(currentFragment.getActivity(), ProductListFragment.class);
+                    searchIntent.putExtra("entry", "product-list");
+                    searchIntent.putExtra("categoryRaw", category.getRaw());
+                    searchIntent.putExtra("categoryName", category.getName());
+                    Provider.with(currentFragment.getContext()).setSearchIntent(searchIntent);
+
+                    FragmentManager fragmentManager = currentFragment.requireActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.mainFragmentContainer, fragment);
+                    fragmentTransaction.addToBackStack("productList");
+                    fragmentTransaction.commit();
                 }
             });
         }
     }
 }
-

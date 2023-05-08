@@ -225,5 +225,9 @@ GitHub.sublime-settings
 
 server/static/**
 
+android/
+readme-resources/
+README.md
+
 
 server/config/config.json

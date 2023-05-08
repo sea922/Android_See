@@ -8,8 +8,15 @@ server = 'containers-us-west-117.railway.app'
 database = 'railway'
 port = 5930
 username = 'root'
-password = 'i5eKTdri853V0uv3Qoye'
+password = '2QzH6B5DAP3vW8eEqTnv'
 driver = 'pymysql'
+
+# server = 'localhost'
+# database = 'company'
+# port = ""
+# username = 'root'
+# password = ''
+# driver = 'pymysql'
 
 class Connector:
     __connection = None

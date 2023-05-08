@@ -167,7 +167,7 @@ public class SearchActivity extends AppCompatActivity {
             return;
         }
         Intent chooseImageIntent = ImagePicker.getPickImageIntent(this);
-        cameraActivityResultLauncher.launch(chooseImageIntent);
+        //cameraActivityResultLauncher.launch(chooseImageIntent);
     }
 
     @Override

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ProductListActivity">
+    tools:context=".activity.ProductListActivity">
 
     <!-- Search and cart -->
     <LinearLayout
@@ -50,7 +50,7 @@
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:src="@drawable/ic_camera"
-                android:tint="@color/primary_dark" />
+                app:tint="@color/primary_dark" />
         </LinearLayout>
 
         <ImageButton
@@ -63,7 +63,7 @@
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:src="@drawable/ic_cart"
-            android:tint="@color/primary_dark" />
+            app:tint="@color/primary_dark" />
     </LinearLayout>
 
     <!--  Categories -->
