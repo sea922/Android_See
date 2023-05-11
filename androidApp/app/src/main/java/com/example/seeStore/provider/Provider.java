@@ -103,17 +103,28 @@ public class Provider {
 
         categoryListMapping.put("nam", new ArrayList<>());
         for (int i = 0; i < maleCategories.length; i++) {
-            categoryListMapping.get("nam").add(new Category(maleCategories[i], maleImageIds[i], maleRaws[i]));
+            categoryListMapping.get("nam").add(new Category(maleCategories[i], maleImageIds[i], maleRaws[i], true));
         }
 
         categoryListMapping.put("nu", new ArrayList<>());
         for (int i = 0; i < femaleCategories.length; i++) {
-            categoryListMapping.get("nu").add(new Category(femaleCategories[i], femaleImageIds[i], femaleRaws[i]));
+            categoryListMapping.get("nu").add(new Category(femaleCategories[i], femaleImageIds[i], femaleRaws[i], true));
         }
 
     }
 
     public ArrayList<Category> getCategoryList(String gender) {
         return categoryListMapping.get(gender);
+    }
+
+    public ArrayList<Category> getCategoryList(String gender, boolean addShowAll) {
+        ArrayList<Category> cates = categoryListMapping.get(gender);
+        if (!addShowAll)
+            return cates;
+
+        ArrayList<Category> tags = new ArrayList<>();
+        tags.add(new Category("Tất cả", 0, gender, true));
+        tags.addAll(cates);
+        return tags;
     }
 }
