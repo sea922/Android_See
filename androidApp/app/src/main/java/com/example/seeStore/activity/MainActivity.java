@@ -21,15 +21,21 @@ import com.example.seeStore.fragment.HomeFragment;
 import com.example.seeStore.fragment.ProductListFragment;
 import com.example.seeStore.fragment.WishListFragment;
 import com.example.seeStore.provider.Provider;
+import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.shape.CornerFamily;
+import com.google.android.material.shape.MaterialShapeDrawable;
 
 public class MainActivity extends AppCompatActivity {
     private ImageButton homeBtn, mapBtn, cartBtn, wishlistBtn;
-    private MaterialButton searchBtn;
+    private FloatingActionButton searchBtn;
     private HomeFragment homeFragment;
     private CartFragment cartFragment;
     private WishListFragment wishlistFragment;
     private ConstraintLayout mainParentView;
+
+    private BottomAppBar bottomAppBar;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -69,6 +75,17 @@ public class MainActivity extends AppCompatActivity {
         homeFragment = new HomeFragment(homeBtn);
         cartFragment = new CartFragment(cartBtn);
         wishlistFragment = new WishListFragment(wishlistBtn);
+
+        bottomAppBar = findViewById(R.id.mainBottomNavBar);
+
+        // bottomAppBar corner radius
+        MaterialShapeDrawable bottomBarBackground = (MaterialShapeDrawable) bottomAppBar.getBackground();
+        bottomBarBackground.setShapeAppearanceModel(
+                bottomBarBackground.getShapeAppearanceModel()
+                        .toBuilder()
+                        .setTopRightCorner(CornerFamily.ROUNDED, 60)
+                        .setTopLeftCorner(CornerFamily.ROUNDED, 60)
+                        .build());
     }
 
     private void setupInitialFragments() {
