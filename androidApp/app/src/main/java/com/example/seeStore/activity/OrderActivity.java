@@ -1,9 +1,11 @@
 package com.example.seeStore.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -32,13 +34,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class OrderActivity extends AppCompatActivity {
-
-    private TextInputEditText orderName, orderEmail, orderPhone, orderAddress;
-    private MaterialButton orderCheckout;
     private RelativeLayout orderParentView;
     private LinearLayout orderLoadingWrapper;
+    private TextInputEditText orderName, orderEmail, orderPhone, orderAddress;
+    private MaterialButton orderCheckout;
     private ImageButton orderBackBtn;
-
     private List<CartItem> cartInfo;
 
     private static final int FORM_VALIDATED = 0;
@@ -56,13 +56,6 @@ public class OrderActivity extends AppCompatActivity {
         cartInfo = CartController.with(this).getCartList();
         initViews();
         setEvents();
-//        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-//        List<Address> addresses = geocoder.getFromLocation(MyLat, MyLong, 1);
-//        String cityName = addresses.get(0).getAddressLine(0);
-//        String stateName = addresses.get(0).getAddressLine(1);
-//        String countryName = addresses.get(0).getAddressLine(2);
-
-
     }
 
     private void initViews() {
@@ -79,13 +72,20 @@ public class OrderActivity extends AppCompatActivity {
         orderCheckout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: get all the input text and cart information to call post API
+                // Hide the keyboard
+                View focusView = OrderActivity.this.getCurrentFocus();
+                if (focusView != null) {
+                    InputMethodManager inputManager = (InputMethodManager) OrderActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                }
+
+                // Call API
                 String entry = "process-order";
 
                 try {
                     JSONObject cartParams = new JSONObject();
                     JSONObject itemHM = new JSONObject();
-                    for(CartItem item: cartInfo) {
+                    for (CartItem item : cartInfo) {
                         JSONObject sizeHM = new JSONObject();
                         sizeHM.put(item.getSize(), item.getQuantity());
                         itemHM.put(item.getProductId().toString(), sizeHM);
@@ -129,34 +129,40 @@ public class OrderActivity extends AppCompatActivity {
                     JSONObject params = new JSONObject();
                     params.put("cart", cartParams);
 
-                    System.out.println("OrderActivity: " + params.toString());
-
-                    String url = "http://192.168.88:8000/api/" + entry + "/";
-                    JsonObjectRequest postRequest = new JsonObjectRequest (
-                            url,
-                            params,
-                            new Response.Listener<JSONObject>() {
-                                @Override
-                                public void onResponse(JSONObject response) {
-                                    System.out.println("POST success");
-                                    handleSuccess(response);
-                                }
-                            },
-                            new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    System.out.println("POST error");
-                                    handleError(error);
-                                }
-                            }
-                    );
-                    Provider.with(OrderActivity.this).addToRequestQueue(postRequest);
+//                    orderLoadingWrapper.setVisibility(View.VISIBLE);
+//                    String url = "http://jodern.store:8000/api/" + entry + "/";
+//                    JsonObjectRequest postRequest = new JsonObjectRequest(
+//                            url,
+//                            params,
+//                            new Response.Listener<JSONObject>() {
+//                                @Override
+//                                public void onResponse(JSONObject response) {
+//                                    orderLoadingWrapper.setVisibility(View.GONE);
+//                                    handleSuccess(response);
+//                                }
+//                            },
+//                            new Response.ErrorListener() {
+//                                @Override
+//                                public void onErrorResponse(VolleyError error) {
+//                                    System.out.println(error.toString());
+//                                    orderLoadingWrapper.setVisibility(View.GONE);
+//                                    handleError(error);
+//                                }
+//                            }
+//                    );
+//                    // increase timeout
+////                    postRequest.setRetryPolicy(new DefaultRetryPolicy(
+////                            3000,
+////                            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+////                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+//                    Provider.with(OrderActivity.this).addToRequestQueue(postRequest);
+                    handleSuccess(null);
                 } catch (JSONException e) {
                     System.out.println(e.getStackTrace());
                 }
-
             }
         });
+
         orderBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -171,31 +177,33 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     private void handleSuccess(JSONObject response) {
-        try {
-            if (response.getString("message").equals("Done!")) {
-                // TODO: get rid of products in checked out cart
-                for (CartItem item : cartInfo)
-                    CartItemDB.with(OrderActivity.this).orderItemDao().delete(item);
+        for (CartItem item : cartInfo)
+            CartItemDB.with(OrderActivity.this).orderItemDao().delete(item);
 
-                System.out.println("Clear cart successfully");
-
-                //Toast.makeText(OrderActivity.this, "Đặt hàng thành công", Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(this, MainActivity.class);
-                // TODO: bug when trying to return back to cart fragment
-                intent.putExtra("nextFragment", CartFragment.TAG);
-                intent.putExtra("message", "Đặt hàng thành công. Bạn vui lòng kiểm tra email nhé!");
-                startActivity(intent);
-            } else {
-                MySnackbar.inforSnackar(OrderActivity.this, orderParentView, getString(R.string.error_message)).show();
-            }
-        } catch (JSONException jsonException) {
-            jsonException.printStackTrace();
-        }
+        // Move to cart activity (with empty cart) and show success message
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("nextFragment", CartFragment.TAG);
+        intent.putExtra("message", "Đặt hàng thành công. Bạn vui lòng kiểm tra email nhé!");
+        startActivity(intent);
+//        try {
+//            if (response.getString("message").equals("Done!")) {
+//                for (CartItem item : cartInfo)
+//                    CartItemDB.with(OrderActivity.this).orderItemDao().delete(item);
+//
+//                // Move to cart activity (with empty cart) and show success message
+//                Intent intent = new Intent(this, MainActivity.class);
+//                intent.putExtra("nextFragment", CartFragment.TAG);
+//                intent.putExtra("message", "Đặt hàng thành công. Bạn vui lòng kiểm tra email nhé!");
+//                startActivity(intent);
+//            } else {
+//                MySnackbar.inforSnackar(OrderActivity.this, orderParentView, getString(R.string.error_message)).show();
+//            }
+//        } catch (JSONException jsonException) {
+//            jsonException.printStackTrace();
+//        }
     }
 
     private int formValidator(String name, String email, String phone, String address) {
-        System.out.println(name + " " + email + " " + phone + " " + address);
         if (name.trim().length() == 0) return BLANK_INPUT;
         if (email.trim().length() == 0) return BLANK_INPUT;
         if (phone.trim().length() == 0) return BLANK_INPUT;

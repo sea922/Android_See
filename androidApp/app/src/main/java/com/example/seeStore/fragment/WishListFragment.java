@@ -50,7 +50,8 @@ public class WishListFragment extends Fragment {
     private ImageButton navbarBtn;
     private RecyclerView wishlistRecyclerView;
     private WishListController wishlistController;
-    private LinearLayout wishlistLayout, wishlistEmptyWrapper, wishlistLoadingWrapper;
+    private LinearLayout wishlistEmptyWrapper, wishlistLoadingWrapper;
+    private NestedScrollView wishlistLayout;
     private ImageButton wishlistBackBtn;
 
     public WishListFragment() {

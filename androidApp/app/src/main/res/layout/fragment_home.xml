@@ -9,10 +9,9 @@
     android:id="@+id/homeParentView"
     >
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".activity.MainActivity">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -149,7 +148,8 @@ android:gravity="center">-->
                     android:id="@+id/homeTrendingWrapper"
                     android:layout_width="match_parent"
                     android:layout_height="200dp"
-                    android:layout_marginTop="4dp" />
+                    android:layout_marginTop="4dp"
+                    android:nestedScrollingEnabled="false" />
             </LinearLayout>
 
             <!-- Categories -->
@@ -216,7 +216,8 @@ android:gravity="center">-->
                         android:id="@+id/mainMaleCategoryImageList"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp" />
+                        android:layout_marginTop="12dp"
+                        android:nestedScrollingEnabled="false" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -263,14 +264,19 @@ android:gravity="center">-->
                         android:id="@+id/mainFemaleCategoryImageList"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp" />
+                        android:layout_marginTop="12dp"
+                        android:nestedScrollingEnabled="false" />
 
                 </LinearLayout>
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="96dp" />
+
         </LinearLayout>
 
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 
 </FrameLayout>
