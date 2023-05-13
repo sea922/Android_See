@@ -21,6 +21,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.seeStore.BuildConfig;
 import com.example.seeStore.CustomWidget.MySnackbar;
 import com.example.seeStore.R;
 import com.example.seeStore.activity.SearchActivity;
@@ -134,7 +135,7 @@ public class HomeFragment extends Fragment {
     private void getTrendingProducts() {
         String entry = "trending";
         String params = "8";
-        String url = "http://10.0.128.160:8000/api/" + entry + "/" + params;
+        String url = BuildConfig.SERVER_URL + entry + "/" + params;
         JsonObjectRequest postRequest = new JsonObjectRequest (
                 Request.Method.GET,
                 url,

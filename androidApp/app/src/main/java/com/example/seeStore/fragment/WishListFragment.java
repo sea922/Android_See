@@ -22,6 +22,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.seeStore.BuildConfig;
 import com.example.seeStore.CustomWidget.MySnackbar;
 import com.example.seeStore.R;
 import com.example.seeStore.activity.SearchActivity;
@@ -131,7 +132,7 @@ public class WishListFragment extends Fragment {
             if (i != productIds.size() - 1)
                 params += ",";
         }
-        String url = "http://192.168.88:8000/api/" + entry + "?" + params;
+        String url = BuildConfig.SERVER_URL + entry + "?" + params;
         JsonObjectRequest getRequest = new JsonObjectRequest (
                 Request.Method.GET,
                 url,

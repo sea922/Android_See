@@ -19,6 +19,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.seeStore.BuildConfig;
 import com.example.seeStore.CustomWidget.MySnackbar;
 import com.example.seeStore.R;
 import com.example.seeStore.adapter.ProductSliderAdapter;
@@ -90,7 +91,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     private void getMainProduct(Intent intent) {
         String params = parseSearchParams(intent);
         // TODO: hide API KEY
-        String url = "http://192.168.88:8000/api/" + params;
+        String url = BuildConfig.SERVER_URL + params;
         JsonObjectRequest stringRequest = new JsonObjectRequest(
                 Request.Method.GET,
                 url,
@@ -119,7 +120,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         String id = String.valueOf(currentProduct.getId());
         String entry = "related";
         String params = "id=" + id + "&top_k=" + String.valueOf(5);
-        String url = "http://10.0.128.160:8000/api/" + entry + "?" + params;
+        String url = BuildConfig.SERVER_URL + entry + "?" + params;
         JsonObjectRequest stringRequest = new JsonObjectRequest(
                 Request.Method.GET,
                 url,

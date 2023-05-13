@@ -1,6 +1,10 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
+
+def localProperties = new Properties()
+localProperties.load(new FileInputStream(rootProject.file("local.properties")))
 
 android {
     namespace 'com.example.seeStore'
@@ -14,6 +18,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "SERVER_URL", "\"" + localProperties["SERVER_URL"] + "\"" // link/to/server/api/
     }
 
     buildTypes {

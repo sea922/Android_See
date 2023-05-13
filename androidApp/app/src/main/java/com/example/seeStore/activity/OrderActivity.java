@@ -130,7 +130,7 @@ public class OrderActivity extends AppCompatActivity {
                     params.put("cart", cartParams);
 
 //                    orderLoadingWrapper.setVisibility(View.VISIBLE);
-//                    String url = "http://jodern.store:8000/api/" + entry + "/";
+//                    String url = BuildConfig.SERVER_URL + entry + "/";
 //                    JsonObjectRequest postRequest = new JsonObjectRequest(
 //                            url,
 //                            params,

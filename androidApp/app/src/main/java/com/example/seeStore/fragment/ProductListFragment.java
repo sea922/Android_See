@@ -21,6 +21,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.seeStore.BuildConfig;
 import com.example.seeStore.CustomWidget.MySnackbar;
 import com.example.seeStore.R;
 import com.example.seeStore.activity.SearchActivity;
@@ -149,7 +150,7 @@ public class ProductListFragment extends Fragment {
         if (method == null) {
             // GET requests
             String searchParams = parseSearchParams(args);
-            String url = "http://192.168.88:8000/api/" + searchParams;
+            String url = BuildConfig.SERVER_URL + searchParams;
             JsonObjectRequest getRequest = new JsonObjectRequest (
                     Request.Method.GET,
                     url,
@@ -178,7 +179,7 @@ public class ProductListFragment extends Fragment {
             HashMap<String, String> params = new HashMap<>();
             params.put("query", Provider.with(getContext()).getImageBase64());
 
-            String url = "http://192.168.88:8000/api/" + entry + "/";
+            String url = BuildConfig.SERVER_URL + entry + "/";
             System.out.println(url);
             JsonObjectRequest postRequest = new JsonObjectRequest (
                     url,
