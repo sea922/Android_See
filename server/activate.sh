@@ -1,3 +1,4 @@
 conda activate test-env
 pip install -r requirements.txt
-git-lfs pull
+git lfs install
+git lfs pull
