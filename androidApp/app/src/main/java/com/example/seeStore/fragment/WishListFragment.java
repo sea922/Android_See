@@ -14,6 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,6 +36,7 @@ import com.example.seeStore.model.Product;
 import com.example.seeStore.provider.Provider;
 import com.example.seeStore.wishList.WishListController;
 import com.example.seeStore.wishList.wishListItem.WishlistItem;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
@@ -54,6 +58,7 @@ public class WishListFragment extends Fragment {
     private LinearLayout wishlistEmptyWrapper, wishlistLoadingWrapper;
     private NestedScrollView wishlistLayout;
     private ImageButton wishlistBackBtn;
+    private MaterialButton wishlistGoToShopBtn;
 
     public WishListFragment() {
         // Required empty public constructor
@@ -99,6 +104,7 @@ public class WishListFragment extends Fragment {
         wishlistLoadingWrapper = requireView().findViewById(R.id.wishlistLoadingWrapper);
         wishlistRecyclerView = requireView().findViewById(R.id.wishlistRecyclerView);
         wishlistBackBtn = requireView().findViewById(R.id.wishlistBackBtn);
+        wishlistGoToShopBtn = requireView().findViewById(R.id.wishlistGoToShopBtn);
     }
 
     private void setEvents() {
@@ -108,7 +114,35 @@ public class WishListFragment extends Fragment {
                 getActivity().onBackPressed();
             }
         });
+
+        wishlistGoToShopBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment fragment = new ProductListFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("entry", "product-list");
+                bundle.putString("sex", "nam");
+                bundle.putString("categoryName", "Thời trang nam");
+                fragment.setArguments(bundle);
+
+                // Back pressed handling
+                FragmentActivity activity = getActivity();
+                Intent searchIntent = new Intent(activity, ProductListFragment.class);
+                searchIntent.putExtra("entry", "product-list");
+                bundle.putString("sex", "nam");
+                bundle.putString("categoryName", "Thời trang nam");
+                Provider.with(activity).setSearchIntent(searchIntent);
+
+                FragmentManager fragmentManager = activity.getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.mainFragmentContainer, fragment);
+                fragmentTransaction.addToBackStack("productList");
+                fragmentTransaction.commit();
+            }
+        });
     }
+
+
 
     private void showWishlistItems() {
         if (wishlistController.getWishlistItemList().size() == 0) {

@@ -17,7 +17,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/logo" />
+        app:srcCompat="@drawable/logo_brand" />
 
     <RelativeLayout
         android:id="@+id/loadingPanel"
@@ -31,7 +31,7 @@
         app:layout_constraintTop_toBottomOf="@+id/logoSplashView">
 
         <ProgressBar
-            android:indeterminateTint="@color/dark_gray"
+            android:indeterminateTint="#35393f"
             android:layout_width="75dp"
             android:layout_height="75dp"
             android:indeterminate="true" />

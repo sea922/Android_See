@@ -20,7 +20,7 @@ public class SplashActivity  extends AppCompatActivity {
         //Provider.getInstance();
 
         new Handler().postDelayed((Runnable) () -> {
-            Intent intent = new Intent(SplashActivity.this, CartActivity.class);
+            Intent intent = new Intent(SplashActivity.this, AuthActivity.class);
             startActivity(intent);
             finish();
         }, 3000);
