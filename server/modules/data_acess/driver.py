@@ -11,6 +11,8 @@ username = 'root'
 password = '2QzH6B5DAP3vW8eEqTnv'
 driver = 'pymysql'
 
+# {'message': 'Chào mừng đến với See!', 'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidWRQT1lPSk12M1dFWk1icUdhektPTzJBZzJHMiIsImVtYWlsIjoidHJ1b25ndmFuczEwMTBAZ21haWwuY29tIiwicGhvbmUiOiJVbmtub3duIn0.k9hoRLlWvPmh07_pTVdQvl8y1KPXKKVjWPKTSQ7OW48'}
+
 # server = 'localhost'
 # database = 'company'
 # port = ""
@@ -31,6 +33,7 @@ class Connector:
                 password=password,
                 port=port,
                 autocommit=True,
+                # cursorclass=pymysql.cursors.DictCursor
             )
             Connector.__lastUsed = datetime.datetime.now()
             print(config.Config.getValue("dbname"))
@@ -47,6 +50,7 @@ class Connector:
                 user=username,
                 password=password,
                 autocommit=True,
+                # cursorclass=pymysql.cursors.DictCursor
             )
             Connector.__backgroundLastTimeEstablished = datetime.datetime.now()
         return Connector.__backgroudConnection

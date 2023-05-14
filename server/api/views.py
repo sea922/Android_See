@@ -423,6 +423,7 @@ class SharedCartInfo(APIView):
                 raise Exception('Invalid access token')
             user_id = token['user_id']
             sharedCartId = request.data.get('cartid', None)
+            print(sharedCartId, user_id)
             res = ProcessGetSharedCartInfo(sharedCartId, user_id)
         except:
             traceback.print_exc()

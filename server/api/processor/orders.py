@@ -43,11 +43,13 @@ def ProcessSharedOrder(user_id, cartid, extraInfo):
     query = '''
     select member_id, product_id, size_id, quantity, p.title, p.price, p.image_url from
     (
-        select memberid, productid, sizeid, quantity from SharedCartDetails where cartid = ?
-    ) c join Product p on (p.id = c.productid)
+        select member_id, product_id, size_id, quantity from shared_cart_details where cart_id = %s
+    ) c join product p on (p.id = c.product_id)
     '''
     
-    rows = cursor.execute(query, (cartid, )).fetchall()
+    # rows = cursor.execute(query, (cartid, )).fetchall()
+    cursor.execute(query, (cartid, ))
+    rows = cursor.fetchall()
     ordersData = {}
     ids = set([])
     
@@ -88,7 +90,7 @@ def ProcessSharedOrder(user_id, cartid, extraInfo):
     if not len(ids):
         return {"message": "Cart is empty"}
     
-    query = 'select productid, sizeid, quantity from inventory where productid in ({})'.format(','.join([str(i) for i in ids]))
+    query = 'select product_id, size_id, quantity from inventory where product_id in ({})'.format(','.join([str(i) for i in ids]))
     rows = cursor.execute(query).fetchall()
     
     inventoriesData = {}
@@ -98,8 +100,8 @@ def ProcessSharedOrder(user_id, cartid, extraInfo):
             inventoriesData[str(row[0])] = {}
         inventoriesData[str(row[0])][row[1]] = row[2]
     
-    updateTrendingQueryPattern = 'exec UpdateTrending ?, ?'
-    dropDownQuery = 'update inventory set quantity = (select max(a) from (values (quantity - ?), (0)) as tmptable(a)) where productid = ? and sizeid = ?'
+    updateTrendingQueryPattern = 'call UpdateTrending %s, %s'
+    dropDownQuery = 'update inventory set quantity = (select max(a) from (values (quantity - %s), (0)) as tmptable(a)) where product_id = %s and size_id = %s'
     
     for key, val in consumed.items():
         for size, quantity in val.items():
@@ -144,7 +146,7 @@ def ProcessSharedOrder(user_id, cartid, extraInfo):
     mailContentBase += "</div>"
     
     mailContent = gmail.build_email_content(
-        'joderm.store@gmail.com', 
+        'truongvans1010@gmail.com', 
         [email], 
         subject = 'Đơn hàng của bạn đang trên đường vận chuyển!' if orderType == 0 else 'Lịch hẹn thử đồ!', 
         content = {'html': gmail.html_mail_2(content = mailContentBase)}
@@ -152,15 +154,15 @@ def ProcessSharedOrder(user_id, cartid, extraInfo):
 
     threading.Thread(target = __mailInstance.send_mail, args = (mailContent, ), daemon = True).start()
     
-    query = 'update sharedcart set opening = 0 where cartid = ?'
+    query = 'update shared_cart set opening = 0 where cart_id = %s'
     cursor.execute(query, (cartid, ))
     
     if orderType == 0:
-        query = 'insert into sharedorders(cartid, customername, CustomerPhone, address, Email) values(?, ?, ?, ?, ?)'
+        query = 'insert into shared_orders(cart_id, customer_name, customer_phone, address, email) values(%s, %s, %s, %s, %s)'
         cursor.execute(query, (cartid, customer_name, phone_number, location, email))
         
     else:
-        query = 'insert into sharedorders(cartid, customername, CustomerPhone, Email, ordertype, branchid, Pickuptime) values(?, ?, ?, ?, ?, ?, ?)'
+        query = 'insert into shared_orders(cart_id, customer_name, customer_phone, email, order_type, branch_id, pickup_time) values(%s, %s, %s, %s, %s, %s, %s)'
         cursor.execute(query, (cartid, customer_name, phone_number, email, orderType, branchid, date))
 
     cursor.commit()
@@ -292,7 +294,7 @@ def ProcessPersonalOrder(user_id, extraInfo):
     )
     
     mailContent = gmail.build_email_content(
-        'joderm.store@gmail.com', 
+        'truongvansi.dev@gmail.com', 
         [email], 
         subject = 'Hurray! Đơn hàng của bạn đang trên đường vận chuyển!' if orderType == 0 else 'Hot, hot hot!! Lịch hẹn thử đồ!', 
         content = {'html': gmail.html_mail_2(content = mailContentBase)}
@@ -393,28 +395,34 @@ def SharedOrderDetails(user_id, cartid):
     
     query = '''
         select 
-            createdat, paymentstatus, deliverstatus, ordertype, branchid, 
-            totalprice, customername, CustomerPhone, Address, Email, Pickuptime, cartname
+            created_at, payment_status, deliver_status, order_type, branch_id, 
+            total_price, customer_name, customer_phone, qddress, email, pickup_time, cart_name
         from (
-            select scart.cartid, scart.totalprice, scart.totalitems, scart.cartname from (
-                select * from SharedCart where opening = 0 and cartid = ?
+            select scart.cart_id, scart.total_price, scart.total_items, scart.cart_name from (
+                select * from shared_cart where opening = 0 and cart_id = %s
             ) scart join (
-                select * from SharedCartMember where memberid = ?
-            ) smem on (smem.cartid = scart.cartid)
-        ) s left join sharedorders so on (so.cartid = s.cartid)
+                select * from shared_cart_member where member_id = %s
+            ) smem on (smem.cart_id = scart.cart_id)
+        ) s left join shared_orders so on (so.cart_id = s.cart_id)
     '''
     
-    generalInfo = cursor.execute(query, (cartid, user_id, )).fetchone()
+    # generalInfo = cursor.execute(query, (cartid, user_id, )).fetchone()
+    cursor.execute(query, (cartid, user_id, ))
+    generalInfo = cursor.fetchone()
+
     if not generalInfo:
         raise Exception("permission denied")
     
     query = '''
-        select p.id, s.sizeid, s.quantity, p.Title, p.Descriptions, p.Price, p.sex_id, p.category_id, p.ImageUrl from (
-            select productid, sizeid, quantity from SharedCartDetails where cartid = ?
-        ) s join Product p on ( p.Id = s.productid )
+        select p.id, s.size_id, s.quantity, p.title, p.descriptions, p.price, p.sex_id, p.category_id, p.image_url from (
+            select product_id, size_id, quantity from shared_cart_details where cart_id = %s
+        ) s join product p on ( p.id = s.product_id )
     '''
     
-    rows = cursor.execute(query, (cartid, )).fetchall()
+    # rows = cursor.execute(query, (cartid, )).fetchall()
+    cursor.cursor.execute(query, (cartid, ))
+    rows = cursor.fetchall()
+
     
     res = {
         "totalprice": generalInfo[5],

@@ -2,6 +2,8 @@ from modules.data_acess.driver import Connector
 from .misc import UUID
 import random, threading, datetime, traceback, time
 from .products import categoryMapping, priceMapping
+import pymysql
+import traceback
 
 MOVE_DATA_SYNCING_TO_BACKGROUND = False
 
@@ -63,8 +65,11 @@ def __background(timeout = 0.2):
         try:
             if len(__backgroundQueue) != 0:
                 __backgroundProcessing = True
-                conn = Connector.establishBackgroundConnection()
+                conn = pymysql.connect(host="containers-us-west-117.railway.app", user="root", password="2QzH6B5DAP3vW8eEqTnv", database="railway", port=5930)
                 cursor = conn.cursor()
+                # conn = Connector.establishBackgroundConnection()
+                # cursor = conn.cursor()
+                print("Test:: ", conn)
 
                 for query in __backgroundQueue:
                     try:
@@ -160,14 +165,18 @@ def AddToCart(user_id, product_id, sizeid, quantity, cartids = ['*']):
     for row in cartids:
         if row == '*': continue
         query = "select count(*) as tmp from shared_cart_member where cart_id = %s and member_id = %s"
-        current = cursor.execute(query, (row, user_id, )).fetchone()
+        # current = cursor.execute(query, (row, user_id, )).fetchone()
+        cursor.execute(query, (row, user_id, ))
+        current = cursor.fetchone()
         
         if not current:
             errors += 'Error occur while adding new item to the cart ' + row
             continue
                 
         query = "select * from shared_cart_details where cart_id = %s and member_id = %s and product_id = %s and size_id = %s"
-        current = cursor.execute(query, (row, user_id, product_id, sizeid)).fetchone()
+        # current = cursor.execute(query, (row, user_id, product_id, sizeid)).fetchone()
+        cursor.execute(query, (row, user_id, product_id, sizeid))
+        current = cursor.fetchone()
         
         if not current:
             cursor.execute('insert into shared_cart_details (cart_id, member_id, product_id, size_id, quantity) values (%s, %s, %s, %s, %s)',
@@ -177,9 +186,9 @@ def AddToCart(user_id, product_id, sizeid, quantity, cartids = ['*']):
             cursor.execute(
                 '''
                     update shared_cart_details set quantity = (
-                        select max(a) from (values (quantity + ?), (0)) as tmptable(a)
-                    ) where cartid = ? and memberid = ? 
-                    and product_id = ? and sizeid = ?
+                        select max(a) from (values (quantity + %s), (0)) as tmptable(a)
+                    ) where cartid = %s and memberid = %s
+                    and product_id = %s and sizeid = %s
                 ''',
                 (quantity, row, user_id, product_id, sizeid)
             )
@@ -306,13 +315,15 @@ def ProcessJoinSharedCart(cartid, user_id):
 
 def GetSharedCartInfo(memberid, code):
     query = '''
-        select sc.cartid, SharedCart.cartholder, SharedCart.opening, SharedCart.totalprice, SharedCart.numbersOfMembers, SharedCart.createdAt, SharedCart.cartname
-        from (select cartid from SharedCartMember where memberid = ? and cartid = ?) as sc 
-        left join sharedcart on (sc.cartid = SharedCart.cartid)
+        select sc.cart_id, shared_cart.cart_holder, shared_cart.opening, shared_cart.total_price, shared_cart.numbers_of_members, shared_cart.created_at, shared_cart.cart_name
+        from (select cart_id from shared_cart_member where member_id = %s and cart_id = %s) as sc 
+        left join shared_cart on (sc.cart_id = shared_cart.cart_id)
     '''
     
     cursor = Connector.establishConnection().cursor()
-    row = cursor.execute(query, (memberid, code, )).fetchone()
+    # row = cursor.execute(query, (memberid, code, )).fetchone()
+    cursor.execute(query, (memberid, code, ))
+    row = cursor.fetchone()
     
     if not row:
         raise Exception("Cart not found")
@@ -334,7 +345,9 @@ def ProcessSavePersonalCart(user_id, data):
     # cursor.commit()
     connection.commit()
     query = "select cart_id, opening from cart where cart_holder = %s and opening = 1"
-    row = cursor.execute(query, (user_id, )).fetchone()
+    # row = cursor.execute(query, (user_id, )).fetchone()
+    cursor.execute(query, (user_id, ))
+    row = cursor.fetchone()
     
     cartid = None
     if not row:
@@ -458,19 +471,20 @@ def PersonalSharedListInfo(user_id):
     cursor.execute(query, (user_id, ))
     rows = cursor.fetchall()
     # rows = cursor.execute(query, (user_id, )).fetchall()
+    print(rows)
     
     return {
         "shared": [
             {
-                "cart_id": row[0],
-                "cart_name": row[3],
+                "cartid": row[0],
+                "cartname": row[3],
             }
             for row in rows if row[1] == row[2]  
         ],
         "joined": [
             {
-                "cart_id": row[0],
-                "cart_name": row[3],
+                "cartid": row[0],
+                "cartname": row[3],
             }
             for row in rows if row[2] != row[1]
         ]
@@ -501,7 +515,7 @@ def ProcessGetSharedCartInfo(cartid, user_id):
     
     res["items"] = [
         {
-            "size_id": row[2],
+            "sizeid": row[2],
             "quantity": row[3],
             "product": {
                 "id": row[1],

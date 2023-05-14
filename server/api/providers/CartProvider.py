@@ -11,21 +11,25 @@ __cachingTime = 60 * 30
 
 def __summaryOfSharedInfo(cartid):
     query = '''
-        select sc.cartid, sc.cartholder, sc.numbersOfMembers, sc.totalprice, sc.createdAt, Users.full_name as holdername, users.avatar as holderavatar, cartname, totalitems
-        from (select * from SharedCart where cartid  = ?) sc
+        select sc.cart_id, sc.cart_holder, sc.numbers_of_members, sc.total_price, sc.created_at, users.full_name as holdername, users.avatar as holderavatar, car_tname, total_items
+        from (select * from shared_cart where cart_id  = %s) sc
         join users on (
-            user_id = sc.cartholder
+            user_id = sc.cart_holder
         )
     '''
     
     cursor = Connector.establishConnection().cursor()
-    generalInfoRow = cursor.execute(query, (cartid, )).fetchone()
+    # generalInfoRow = cursor.execute(query, (cartid, )).fetchone()
+    cursor.execute(query, (cartid, ))
+    generalInfoRow = cursor.fetchone()
     
     query = '''
-        select cartid, memberid, productid, sizeid, quantity from SharedCartDetails where cartid = ?
+        select cart_id, member_id, product_id, size_id, quantity from shared_cart_details where cart_id = %s
     '''
     
-    itemsInfoRows = cursor.execute(query, (cartid, )).fetchall()
+    # itemsInfoRows = cursor.execute(query, (cartid, )).fetchall()
+    cursor.execute(query, (cartid, ))
+    itemsInfoRows = cursor.fetchall()
     
     return {
         "id": generalInfoRow[0],
