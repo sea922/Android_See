@@ -4,7 +4,7 @@ import numpy as np
 from modules.retriever.Retriever import Retriever
 
 text_model = SentenceTransformer('keepitreal/vietnamese-sbert')
-text_indices = np.load('data/res/features/texts/text_indices.npy',  allow_pickle=True)
+text_indices = np.load('data/res/features/texts/text_indices.npy')
 print('[STATUS] Text retrieval model loaded')
 
 class TextRetriever():

@@ -23,7 +23,7 @@ class MySwinT2(torch.nn.Module):
         return outputs.pooler_output[0].numpy()
     
 model = MySwinT2()
-image_indices = np.load('data/res/features/images/image_indices.npy',  allow_pickle=True)
+image_indices = np.load('data/res/features/images/image_indices.npy')
 print('[STATUS] Image retrieval model loaded')
 
 def image_preprocess(data):

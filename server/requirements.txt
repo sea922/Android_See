@@ -1,7 +1,7 @@
 torch
 requests
 Pillow
-numpy
+numpy==1.14.*
 opencv-python
 sentence-transformers
 transformers==4.24.0
