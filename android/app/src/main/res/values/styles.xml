@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Jodern" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary_dark</item>
+        <item name="colorPrimaryDark">@color/dark</item>
+<!--        <item name="colorOnPrimary">@color/white</item>-->
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/primary_light</item>
+<!--        <item name="colorSecondaryVariant">@color/teal_700</item>-->
+<!--        <item name="colorOnSecondary">@color/black</item>-->
+
+        <!-- Customize your theme here. -->
+
+        <item name="android:windowDisablePreview">true</item>
+
+        <item name="android:listViewStyle">@style/Widget.MyTheme.ListView</item>
+        <item name="android:scrollViewStyle">@style/Widget.MyTheme.ScrollView</item>
+    </style>
+
+    <style name="Widget.MyTheme.ListView" parent="android:Widget.ListView">
+        <item name="android:overScrollMode">never</item>
+    </style>
+
+    <style name="Widget.MyTheme.ScrollView" parent="android:Widget.ScrollView">
+        <item name="android:overScrollMode">never</item>
+    </style>
+
+    <style name="Theme.Jodern.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.NavBarSearchBtn" parent="">
+        <item name="cornerSizeTopLeft">32dp</item>
+        <item name="cornerSizeBottomLeft">32dp</item>
+        <item name="cornerSizeTopRight">32dp</item>
+        <item name="cornerSizeBottomRight">32dp</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.SearchBtn" parent="">
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeTopRight">8dp</item>
+        <item name="cornerSizeBottomRight">8dp</item>
+    </style>
+
+    <style name="MySearchView" parent="Widget.AppCompat.SearchView" >
+        <item name="android:textSize">14dp</item>
+        <item name="android:padding">0sp</item>
+        <item name="android:editTextColor">@color/text</item>
+        <item name="android:textColorHint">@color/text_light</item>
+    </style>
+</resources>
