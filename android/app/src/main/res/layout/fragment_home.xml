@@ -53,7 +53,7 @@
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/logo"
+                        android:src="@drawable/logo_brand"
                         app:riv_mutate_background="true"
                         app:riv_oval="true" />
 

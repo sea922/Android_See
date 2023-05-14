@@ -1,7 +1,7 @@
 package com.example.seeStore.adapter;
 
 import android.content.Intent;
-//import com.example.jodern.ProductListActivity;
+//import com.example.seeStore.ProductListActivity;
 import com.example.seeStore.R;
 import com.example.seeStore.fragment.ProductListFragment;
 import com.example.seeStore.model.Category;

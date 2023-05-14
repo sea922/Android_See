@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Jodern" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="seeStore" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/primary_dark</item>
         <item name="colorPrimaryDark">@color/dark</item>
 <!--        <item name="colorOnPrimary">@color/white</item>-->
@@ -25,7 +25,7 @@
         <item name="android:overScrollMode">never</item>
     </style>
 
-    <style name="Theme.Jodern.NoActionBar">
+    <style name="Theme.seeStore.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
