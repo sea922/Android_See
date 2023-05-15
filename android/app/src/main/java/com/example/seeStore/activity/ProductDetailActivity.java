@@ -404,6 +404,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                             try {
                                 JSONArray sharedItems = response.getJSONArray("shared");
                                 JSONArray joinedItems = response.getJSONArray("joined");
+                                System.out.println(joinedItems);
                                 ArrayList<HashMap<String, String>> sharedCarts = parseCartItems(sharedItems);
                                 ArrayList<HashMap<String, String>> joinedCarts = parseCartItems(joinedItems);
                                 showChooseCartDialog(sharedCarts, joinedCarts);
