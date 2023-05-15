@@ -142,7 +142,7 @@ def __updateSharedCartBG(cartid):
     else:
         cursor = Connector.establishConnection().cursor()
         cursor.execute(query, (cartid, cartid, cartid))
-        cursor.commit()
+        # cursor.commit()
     
 def __pushLogsBG(cartid, note):
     query = 'insert into shared_cart_history(cart_id, note) values (%s, %s)'
@@ -179,17 +179,26 @@ def AddToCart(user_id, product_id, sizeid, quantity, cartids = ['*']):
         current = cursor.fetchone()
         
         if not current:
-            cursor.execute('insert into shared_cart_details (cart_id, member_id, product_id, size_id, quantity) values (%s, %s, %s, %s, %s)',
-                (row, user_id, product_id, sizeid, quantity)
-            )
+            query = 'insert into shared_cart_details (cart_id, member_id, product_id, size_id, quantity) values (%s, %s, %s, %s, %s)'
+            cursor.execute(query, (row, user_id, product_id, sizeid, quantity))
         else:
+            query = '''
+                    UPDATE shared_cart_details 
+                        SET quantity = (
+                            SELECT MAX(a) 
+                            FROM (
+                                SELECT quantity + %s AS a
+                                    UNION ALL
+                                SELECT 0
+                             ) AS tmptable
+                        ) 
+                    WHERE cart_id = %s AND member_id = %s 
+                    AND product_id = %s AND size_id = %s
+            '''
+
+            # print(quantity, row, user_id, product_id, sizeid)
             cursor.execute(
-                '''
-                    update shared_cart_details set quantity = (
-                        select max(a) from (values (quantity + %s), (0)) as tmptable(a)
-                    ) where cartid = %s and memberid = %s
-                    and product_id = %s and sizeid = %s
-                ''',
+                query,
                 (quantity, row, user_id, product_id, sizeid)
             )
 
@@ -500,12 +509,27 @@ def ProcessGetSharedCartInfo(cartid, user_id):
     if not row:
         raise Exception("Cart not found")
     
+    # query = '''
+    #                 UPDATE shared_cart_details 
+    #                     SET quantity = (
+    #                         SELECT MAX(a) 
+    #                         FROM (
+    #                             SELECT quantity + %s AS a
+    #                                 UNION ALL
+    #                             SELECT 0
+    #                          ) AS tmptable
+    #                     ) 
+    #                 WHERE cart_id = %s AND member_id = %s 
+    #                 AND product_id = %s AND size_id = %s
+    #         '''
+    
     query = '''
         select cart_id, product_id, size_id, COALESCE(sum(quantity), 0), title, descriptions, price, sex_id, category_id, image_url
         from (select * from shared_cart_details where cart_id = %s) scm join product p 
         on ( p.id = scm.product_id )
         group by cart_id, product_id, size_id, title, descriptions, price, sex_id, category_id, image_url
     '''
+    # pymysql.err.OperationalError: (3819, "Check constraint 'shared_cart_details_chk_1' is violated.")
     
     # rows = cursor.execute(query, (cartid, )).fetchall()
     cursor.execute(query, (cartid, ))

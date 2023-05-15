@@ -91,7 +91,9 @@ def ProcessSharedOrder(user_id, cartid, extraInfo):
         return {"message": "Cart is empty"}
     
     query = 'select product_id, size_id, quantity from inventory where product_id in ({})'.format(','.join([str(i) for i in ids]))
-    rows = cursor.execute(query).fetchall()
+    # rows = cursor.execute(query).fetchall()
+    cursor.execute(query)
+    rows = cursor.fetchall()
     
     inventoriesData = {}
     
@@ -102,7 +104,7 @@ def ProcessSharedOrder(user_id, cartid, extraInfo):
     
     updateTrendingQueryPattern = 'call UpdateTrending %s, %s'
     dropDownQuery = 'update inventory set quantity = (select max(a) from (values (quantity - %s), (0)) as tmptable(a)) where product_id = %s and size_id = %s'
-    
+    # Error
     for key, val in consumed.items():
         for size, quantity in val.items():
             if quantity != 0:
