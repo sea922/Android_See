@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,12 +14,16 @@
         android:theme="@style/Theme.Mobilescratch"
         tools:targetApi="31">
         <activity
+            android:name=".activity.ProductDetailActivity"
+            android:exported="false"
+            android:label="@string/title_activity_product_detail"
+            android:theme="@style/Theme.Mobilescratch.NoActionBar" />
+        <activity
             android:name=".activity.LoginActivity"
             android:exported="false" />
         <activity
             android:name=".activity.RegisterActivity"
             android:exported="false" />
-
         <activity
             android:name=".activity.SplashScreenActivity"
             android:exported="true"

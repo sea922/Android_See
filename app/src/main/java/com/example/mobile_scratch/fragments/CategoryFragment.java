@@ -14,6 +14,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.Switch;
 
 import com.example.mobile_scratch.R;
 import com.example.mobile_scratch.adapter.ProductAdapter;
@@ -28,17 +30,21 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
-public class CategoryFragment extends Fragment {
+public class CategoryFragment extends Fragment{
 
     RecyclerView productRecyclerView;
-    List<ProductModel> itemList = new ArrayList<>();
+    ArrayList<ProductModel> itemList = new ArrayList<>();
 
     ProductAdapter productAdapter;
 
     FirebaseFirestore db;
-    List<ProductModel> filteredItemList = new ArrayList<>();
+    List<ProductModel> filteredItemList;
+
+    LinearLayout categoryList;
+    private View button;
 
     public CategoryFragment() {
         // Required empty public constructor
@@ -49,6 +55,7 @@ public class CategoryFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         //Todo: khi xai api thi sua lai type cua itemImg
 //        itemList.add(new Item("Product 1", "30 USD", R.drawable.p1));
 //        itemList.add(new Item("Product 2", "25 USD", R.drawable.p2));
@@ -57,34 +64,16 @@ public class CategoryFragment extends Fragment {
 //        itemList.add(new Item("Product 5", "30 USD", R.drawable.p1));
 //        itemList.add(new Item("Product 6", "25 USD", R.drawable.p2));
 
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        db = FirebaseFirestore.getInstance();
-        itemList.clear();
-        db.collection("products")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        Bundle extras =  this.getArguments();
+        Log.d("received", extras.toString());
+        itemList = extras.getParcelableArrayList("products");
 
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, document.getId() + " => " + document.getData());
-
-                                ProductModel productModel = document.toObject(ProductModel.class);
-                                itemList.add(productModel);
-                                productAdapter.notifyDataSetChanged();
-                            }
-                        } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
-                        }
-                    }
-                });
-
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_category, container, false);
     }
 
@@ -94,8 +83,58 @@ public class CategoryFragment extends Fragment {
         productRecyclerView = getView().findViewById(R.id.productsRecyclerView);
         Log.d("mockupItem", itemList.toString());
         productRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), 2));
-        productAdapter = new ProductAdapter(this.getContext(), itemList);
+        filteredItemList = new ArrayList<ProductModel>(itemList);
+        Log.d("adapter init data", filteredItemList.toString());
+        productAdapter = new ProductAdapter(this.getContext(), (ArrayList<ProductModel>) filteredItemList);
 
         productRecyclerView.setAdapter(productAdapter);
+
+//        categoryList = getView().findViewById(R.id.categoryList);
+//        categoryList.setOnClickListener(this::onClick);
+
     }
+
+    private void filterProductsBy(String category) {
+
+        if (category.equals("all")) {
+            filteredItemList.clear();
+            filteredItemList.addAll(itemList);
+            Log.v("fileted item now", filteredItemList.toString());
+            productAdapter.notifyDataSetChanged();
+            return;
+        }
+        ArrayList<ProductModel> temp = (ArrayList<ProductModel>) itemList.stream().filter(item -> category.equals(item.getCat())).collect(Collectors.toList());
+
+        filteredItemList.clear();
+        filteredItemList.addAll(temp);
+        Log.v("fileted item now", filteredItemList.toString());
+        productAdapter.notifyDataSetChanged();
+    }
+
+    public void onCategoryClicked(View button) {
+        this.button = button;
+
+        switch (button.getId()) {
+            case R.id.filter:
+                filterProductsBy("all");
+
+                break;
+            case R.id.male:
+                filterProductsBy("male");
+                break;
+            case R.id.female:
+                filterProductsBy("female");
+                break;
+            case R.id.kids:
+                filterProductsBy("kids");
+                break;
+            case R.id.accessory:
+                filterProductsBy("accessory");
+                break;
+        }
+
+        //productAdapter.notifyDataSetChanged();
+    }
+
+
 }

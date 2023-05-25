@@ -20,4 +20,13 @@
     <style name="SplashscreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@drawable/bg_splashscreen</item>
     </style>
+
+    <style name="Theme.Mobilescratch.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Mobilescratch.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Mobilescratch.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>
