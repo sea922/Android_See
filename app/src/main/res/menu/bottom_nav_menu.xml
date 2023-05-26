@@ -6,9 +6,9 @@
         android:icon="@drawable/ic_home"
         />
     <item
-        android:id="@+id/mainNavBarCategoryBtn"
-        android:title="Category"
-        android:icon="@drawable/ic_category"
+        android:id="@+id/mainNavBarMapBtn"
+        android:title="Map"
+        android:icon="@drawable/ic_map"
         />
     <item
         android:title=""

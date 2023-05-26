@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.mobile_scratch"
-        minSdk 31
+        minSdk 30
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -55,6 +55,10 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.15.1'
     implementation 'com.firebaseui:firebase-ui-storage:8.0.2'
     annotationProcessor 'androidx.annotation:annotation:1.1.0'
+
+    implementation 'com.google.android.gms:play-services-maps:17.0.1'
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

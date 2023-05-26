@@ -12,6 +12,7 @@ import android.widget.Button;
 import com.example.mobile_scratch.R;
 import com.example.mobile_scratch.fragments.CategoryFragment;
 import com.example.mobile_scratch.fragments.HomeFragment;
+import com.example.mobile_scratch.fragments.MapFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
         HomeFragment homeFragment = new HomeFragment();
         CategoryFragment categoryFragment = new CategoryFragment();
+        MapFragment mapFragment = new MapFragment();
 
         bottomNavigationView = findViewById(R.id.mainBottomNavBar);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -44,12 +46,17 @@ public class MainActivity extends AppCompatActivity {
                                 .replace(R.id.mainFragmentContainer, homeFragment)
                                 .commit();
                         return true;
-                    case R.id.mainNavBarCategoryBtn:
-                        getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.mainFragmentContainer, categoryFragment)
-                                .commit();
+//                    case R.id.mainNavBarCategoryBtn:
+//                        getSupportFragmentManager()
+//                                .beginTransaction()
+//                                .replace(R.id.mainFragmentContainer, categoryFragment)
+//                                .commit();
+//                        return true;
+                    case R.id.mainNavBarMapBtn:
+                        startActivity(new Intent(MainActivity.this, MapActivity.class));
                         return true;
+
+
                 }
                 return false;
             }
