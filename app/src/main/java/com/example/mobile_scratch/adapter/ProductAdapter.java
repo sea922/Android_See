@@ -1,6 +1,7 @@
 package com.example.mobile_scratch.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -8,28 +9,29 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.module.AppGlideModule;
 import com.example.mobile_scratch.R;
 import com.example.mobile_scratch.holder.ProductViewHolder;
 import com.example.mobile_scratch.models.ProductModel;
 
 import com.example.mobile_scratch.ultis.GlideApp;
-import com.example.mobile_scratch.ultis.MyAppGlideModule;
-import com.example.mobile_scratch.view.Item;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductViewHolder> {
     Context context;
-    List<ProductModel> itemList;
+    ArrayList<ProductModel> rootItemList;
+
+    ArrayList<ProductModel> filteredItemList;
     FirebaseStorage storageFB;
 
-    public ProductAdapter(Context context, List<ProductModel> itemList) {
+
+
+    public ProductAdapter(Context context, ArrayList<ProductModel> rootItemList) {
         this.context = context;
-        this.itemList = itemList;
+        this.rootItemList = rootItemList;
         storageFB = FirebaseStorage.getInstance();
 
 
@@ -38,28 +40,36 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductViewHolder> {
     @NonNull
     @Override
     public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
         return new ProductViewHolder(LayoutInflater.from(context).inflate(R.layout.item_view, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
-//        Glide.with(context).load(itemList.get(position).getImg()).into(holder.getItemImg());
-        StorageReference imgURL = storageFB.getReferenceFromUrl(itemList.get(position).getImg());
-        Log.d("imgURL", imgURL.toString());
-        GlideApp
-                .with(context)
-                .load(storageFB.getReferenceFromUrl(imgURL.toString())).into(holder.getItemImg());
-        holder.getItemName().setText(itemList.get(position).getName());
-        holder.getItemPrice().setText(itemList.get(position).getPrice().toString());
 
+//        Glide.with(context).load(itemList.get(position).getImg()).into(holder.getItemImg());
+        StorageReference imgReference = storageFB.getReferenceFromUrl(rootItemList.get(position).getImg().get(0));
+        Log.d("adapter now", rootItemList.toString());
+
+        GlideApp.with(context)
+                .load(imgReference)
+                .into(holder.getItemImg());
+
+//        holder.getItemName().setText(rootItemList.get(position).getName());
+//        holder.getItemPrice().setText(rootItemList.get(position).getPrice().toString());
+
+        holder.setProduct(rootItemList.get(position));
         holder.setIsRecyclable(false);
 
 
      }
 
+
+
     @Override
     public int getItemCount() {
-        return itemList.size();
+        return rootItemList.size();
     }
+
 
 }
