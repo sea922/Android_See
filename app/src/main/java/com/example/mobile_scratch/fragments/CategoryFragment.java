@@ -136,5 +136,10 @@ public class CategoryFragment extends Fragment{
         //productAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("on resume", "category fragment");
 
+    }
 }

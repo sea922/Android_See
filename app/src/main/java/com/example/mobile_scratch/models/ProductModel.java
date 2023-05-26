@@ -3,15 +3,18 @@ package com.example.mobile_scratch.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ProductModel implements Parcelable{
     String productID;
-    String[] img;
+    ArrayList<String> img;
     String name;
     Double price;
 
     String cat;
 
-    double[] size;
+    ArrayList<Double> size;
 
     String desc;
 
@@ -31,50 +34,6 @@ public class ProductModel implements Parcelable{
 //        this.desc = desc;
 //    }
 
-    public ProductModel(Parcel in) {
-        super();
-        this.productID = in.readString();
-        this.img = in.createStringArray();
-        this.name = in.readString();
-        this.price = in.readDouble();
-        this.cat = in.readString();
-        this.size = in.createDoubleArray();
-        this.desc = in.readString();
-
-
-    }
-
-    public static  final Parcelable.Creator<ProductModel> CREATOR = new Parcelable.Creator<ProductModel>() {
-        @Override
-        public ProductModel createFromParcel(Parcel in) {
-            return new ProductModel(in);
-        }
-        @Override
-        public ProductModel[] newArray(int size) {
-            return new ProductModel[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel in, int i) {
-        in.writeString(this.productID);
-        in.writeString(this.cat);
-        in.writeString(this.name);
-        in.writeDouble(this.price);
-        in.writeStringArray(this.img);
-        in.writeDoubleArray(this.size);
-        in.writeString(this.desc);
-
-
-    }
-
-
-
 
     public String getProductID() {
         return productID;
@@ -84,11 +43,11 @@ public class ProductModel implements Parcelable{
         this.productID = productID;
     }
 
-    public String[] getImg() {
+    public ArrayList<String> getImg() {
         return img;
     }
 
-    public void setImg(String[] img) {
+    public void setImg(ArrayList<String> img) {
         this.img = img;
     }
 
@@ -116,11 +75,11 @@ public class ProductModel implements Parcelable{
         this.cat = cat;
     }
 
-    public double[] getSize() {
+    public ArrayList<Double> getSize() {
         return size;
     }
 
-    public void setSize(double[] size) {
+    public void setSize(ArrayList<Double> size) {
         this.size = size;
     }
 
@@ -131,4 +90,54 @@ public class ProductModel implements Parcelable{
     public void setDesc(String desc) {
         this.desc = desc;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.productID);
+        dest.writeStringList(this.img);
+        dest.writeString(this.name);
+        dest.writeValue(this.price);
+        dest.writeString(this.cat);
+        dest.writeList(this.size);
+        dest.writeString(this.desc);
+    }
+
+    public void readFromParcel(Parcel source) {
+        this.productID = source.readString();
+        this.img = source.createStringArrayList();
+        this.name = source.readString();
+        this.price = (Double) source.readValue(Double.class.getClassLoader());
+        this.cat = source.readString();
+        this.size = new ArrayList<Double>();
+        source.readList(this.size, Double.class.getClassLoader());
+        this.desc = source.readString();
+    }
+
+    protected ProductModel(Parcel in) {
+        this.productID = in.readString();
+        this.img = in.createStringArrayList();
+        this.name = in.readString();
+        this.price = (Double) in.readValue(Double.class.getClassLoader());
+        this.cat = in.readString();
+        this.size = new ArrayList<Double>();
+        in.readList(this.size, Double.class.getClassLoader());
+        this.desc = in.readString();
+    }
+
+    public static final Creator<ProductModel> CREATOR = new Creator<ProductModel>() {
+        @Override
+        public ProductModel createFromParcel(Parcel source) {
+            return new ProductModel(source);
+        }
+
+        @Override
+        public ProductModel[] newArray(int size) {
+            return new ProductModel[size];
+        }
+    };
 }

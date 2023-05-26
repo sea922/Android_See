@@ -48,7 +48,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductViewHolder> {
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
 
 //        Glide.with(context).load(itemList.get(position).getImg()).into(holder.getItemImg());
-        StorageReference imgURL = storageFB.getReferenceFromUrl(rootItemList.get(position).getImg()[0]);
+        StorageReference imgURL = storageFB.getReferenceFromUrl(rootItemList.get(position).getImg().get(0));
         Log.d("adapter now", rootItemList.toString());
         GlideApp
                 .with(context)

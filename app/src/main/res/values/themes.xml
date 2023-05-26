@@ -14,7 +14,7 @@
         <!-- Customize your theme here. -->
         <item name="textAllCaps">false</item>
         <item name="android:textColorHint">#A6A6A6</item>
-        <item name="backgroundTint">#A6A6A6</item>
+
     </style>
 
     <style name="SplashscreenTheme" parent="Theme.AppCompat.Light.NoActionBar">

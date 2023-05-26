@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
         Bundle bundle = new Bundle();
 
-
+        bottomNavigationView = findViewById(R.id.mainBottomNavBar);
 
         db.collection("products")
                 .get()
@@ -79,34 +79,35 @@ public class MainActivity extends AppCompatActivity {
                             }
                             bundle.putParcelableArrayList("products", itemList);
                             categoryFragment.setArguments(bundle);
+                            bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+                                @Override
+                                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                                    switch (item.getItemId()) {
+                                        case R.id.mainNavBarHomeBtn:
+                                            getSupportFragmentManager()
+                                                    .beginTransaction()
+                                                    .replace(R.id.mainFragmentContainer, homeFragment)
+                                                    .commit();
+                                            return true;
+                                        case R.id.mainNavBarCategoryBtn:
+//                        Log.d("which args", categoryFragment.getArguments().toString());
+                                            getSupportFragmentManager()
+                                                    .beginTransaction()
+                                                    .replace(R.id.mainFragmentContainer, categoryFragment)
+                                                    .commit();
+                                            return true;
+                                    }
+                                    return false;
+                                }
+                            });
                         } else {
                             Log.w(TAG, "Error getting documents.", task.getException());
                         }
                     }
                 });
 
-        bottomNavigationView = findViewById(R.id.mainBottomNavBar);
-        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.mainNavBarHomeBtn:
-                        getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.mainFragmentContainer, homeFragment)
-                                .commit();
-                        return true;
-                    case R.id.mainNavBarCategoryBtn:
-                        Log.d("which args", categoryFragment.getArguments().toString());
-                        getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.mainFragmentContainer, categoryFragment)
-                                .commit();
-                        return true;
-                }
-                return false;
-            }
-        });
+
+
         simpleAuth = FirebaseAuth.getInstance();
         googleSignInClient = GoogleSignIn.getClient(MainActivity.this, GoogleSignInOptions.DEFAULT_SIGN_IN);
 
