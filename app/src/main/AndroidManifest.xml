@@ -30,6 +30,10 @@
             android:name=".activity.MapActivity"
             android:exported="false" />
         <activity
+            android:name=".activity.UserActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".activity.SplashScreenActivity"
             android:exported="true"
             android:theme="@style/SplashscreenTheme">

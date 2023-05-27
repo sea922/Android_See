@@ -1,16 +1,19 @@
 package com.example.mobile_scratch.activity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 
 import com.example.mobile_scratch.adapter.ProductDetailAdapter;
+import com.example.mobile_scratch.fragments.CategoryFragment;
 import com.example.mobile_scratch.models.ProductModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
 import android.util.Log;
@@ -19,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -77,6 +81,37 @@ public class ProductDetailActivity extends AppCompatActivity {
 
             sizeGroup.addView(radioButton);
         });
+
+
+        ImageButton leftTopBarBtn = findViewById(R.id.leftTopBarBtn);
+
+//        leftTopBarBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                setContentView(R.layout.activity_main);
+//                // Create an instance of the CategoryFragment
+//                CategoryFragment categoryFragment = new CategoryFragment();
+//
+//                // Start a fragment transaction
+//                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//
+//                transaction.replace(R.id.fragment_container, categoryFragment); // Replace fragment_container with the ID of your container view
+//
+//                // Commit the transaction
+//                transaction.commit();
+//            }
+//        });
+
+        ImageButton backButton = findViewById(R.id.leftTopBarBtn);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish(); // Finish the current activity and navigate back to the previous activity
+            }
+        });
+
+
+
 
 
 

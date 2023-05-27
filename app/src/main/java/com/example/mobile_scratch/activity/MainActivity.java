@@ -17,6 +17,7 @@ import com.example.mobile_scratch.R;
 import com.example.mobile_scratch.adapter.ProductAdapter;
 import com.example.mobile_scratch.fragments.CategoryFragment;
 import com.example.mobile_scratch.fragments.HomeFragment;
+import com.example.mobile_scratch.fragments.UserFragment;
 import com.example.mobile_scratch.models.ProductModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -49,16 +50,20 @@ public class MainActivity extends AppCompatActivity {
     HomeFragment homeFragment;
     CategoryFragment categoryFragment;
 
+    UserFragment userFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        logout = findViewById(R.id.logout);
+        //logout = findViewById(R.id.logout);
         db = FirebaseFirestore.getInstance();
         itemList.clear();
         homeFragment = new HomeFragment();
         categoryFragment = new CategoryFragment();
+
+        userFragment = new UserFragment();
 
         Bundle bundle = new Bundle();
 
@@ -98,6 +103,16 @@ public class MainActivity extends AppCompatActivity {
                                             return true;
                                         case R.id.mainNavBarMapBtn:
                                             startActivity(new Intent(MainActivity.this, MapActivity.class));
+                                            return true;
+//                                        case R.id.mainNavBarProfileBtn:
+//                                            startActivity(new Intent(MainActivity.this, UserActivity.class));
+//                                            return true;
+                                        case R.id.mainNavBarProfileBtn:
+                                            getSupportFragmentManager()
+                                                    .beginTransaction()
+                                                    .replace(R.id.mainFragmentContainer, userFragment)
+                                                    .commit();
+                                            return true;
                                     }
                                     return false;
                                 }
@@ -113,35 +128,36 @@ public class MainActivity extends AppCompatActivity {
         simpleAuth = FirebaseAuth.getInstance();
         googleSignInClient = GoogleSignIn.getClient(MainActivity.this, GoogleSignInOptions.DEFAULT_SIGN_IN);
 
-        logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                googleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        // Check condition
-                        if (task.isSuccessful()) {
-                            // When task is successful sign out from firebase
-                            simpleAuth.signOut();
-                            // Display Toast
-                            Toast.makeText(getApplicationContext(), "Logout successful", Toast.LENGTH_SHORT).show();
-                            // Finish activity
-                            finish();
-                        }
-                    }
-                });
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                        | Intent.FLAG_ACTIVITY_CLEAR_TOP
-                        | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
-            }
-
-        });
+//        logout.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                googleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        // Check condition
+//                        if (task.isSuccessful()) {
+//                            // When task is successful sign out from firebase
+//                            simpleAuth.signOut();
+//                            // Display Toast
+//                            Toast.makeText(getApplicationContext(), "Logout successful", Toast.LENGTH_SHORT).show();
+//                            // Finish activity
+//                            finish();
+//                        }
+//                    }
+//                });
+//                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+//                        | Intent.FLAG_ACTIVITY_CLEAR_TOP
+//                        | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                startActivity(intent);
+//                finish();
+//            }
+//
+//        });
     }
 
     public void onCategoryClicked(View button) {
         categoryFragment.onCategoryClicked(button);
     }
+
 }
