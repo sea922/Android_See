@@ -13,17 +13,15 @@
         android:orientation="vertical"
         android:paddingHorizontal="40dp">
 
-        <TextView
-
+        <ImageView
             android:layout_width="284dp"
-            android:layout_height="50dp"
+            android:layout_height="100dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="49dp"
-            android:gravity="center_horizontal|top"
-            android:text="Login"
-            android:textColor="@color/black"
-            android:textSize="40sp" />
+            android:src="@drawable/logo_brand"
+            android:contentDescription="Login Image" />
+
 
         <TextView
             android:id="@+id/by_signing_"

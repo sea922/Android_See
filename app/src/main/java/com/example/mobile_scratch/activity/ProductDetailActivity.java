@@ -72,7 +72,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         sizeGroup = findViewById(R.id.sizeGroup);
 
 
-        inflater =  LayoutInflater.from(this);
+        inflater = LayoutInflater.from(this);
 
         product.getSize().forEach(size -> {
 
@@ -85,23 +85,6 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         ImageButton leftTopBarBtn = findViewById(R.id.leftTopBarBtn);
 
-//        leftTopBarBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                setContentView(R.layout.activity_main);
-//                // Create an instance of the CategoryFragment
-//                CategoryFragment categoryFragment = new CategoryFragment();
-//
-//                // Start a fragment transaction
-//                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-//
-//                transaction.replace(R.id.fragment_container, categoryFragment); // Replace fragment_container with the ID of your container view
-//
-//                // Commit the transaction
-//                transaction.commit();
-//            }
-//        });
-
         ImageButton backButton = findViewById(R.id.leftTopBarBtn);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,19 +93,12 @@ public class ProductDetailActivity extends AppCompatActivity {
             }
         });
 
-
-
-
-
-
-
         sizeGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                for (int i=0;i<radioGroup.getChildCount();i++) {
+                for (int i = 0; i < radioGroup.getChildCount(); i++) {
                     RadioButton btn = (RadioButton) radioGroup.getChildAt(i);
                     if (!btn.isChecked()) {
-                        //RadioButton btn = (RadioButton) radioGroup.getChildAt(i);
                         btn.setBackground(getDrawable(R.drawable.unchecked));
                         Log.d("unchecked", Integer.toString(i));
                     } else {
@@ -133,9 +109,36 @@ public class ProductDetailActivity extends AppCompatActivity {
             }
         });
 
+        fetchProductDetails();
+    }
 
+    private void fetchProductDetails() {
+        db.collection("products")
+                .document(product.getProductID())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        name = documentSnapshot.getString("name");
+                        price = documentSnapshot.getDouble("price");
+//                        size = documentSnapshot.get("size", Double[].class);
+                        desc = documentSnapshot.getString("desc");
+                        bindView();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Handle any errors
+                    Log.e("ProductDetailActivity", "Error getting product details: " + e.getMessage());
+                });
+    }
 
+    private void bindView() {
+        TextView productNameTextView = findViewById(R.id.productName);
+//        TextView productPriceTextView = findViewById(R.id.productPriceTextView);
+        TextView productDescTextView = findViewById(R.id.productDescription);
 
+        productNameTextView.setText(name);
+//        productPriceTextView.setText(String.valueOf(price));
+        productDescTextView.setText(desc);
     }
 
     @Override
@@ -144,14 +147,4 @@ public class ProductDetailActivity extends AppCompatActivity {
         sizeGroup.clearCheck();
         Log.d("product detail", "stopped");
     }
-
-    private void bindView() {
-
-    }
-
-
-//    private void bindData(DocumentSnapshot document) {
-//        name = document.
-//    }
-
 }

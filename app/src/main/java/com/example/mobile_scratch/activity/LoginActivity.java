@@ -103,6 +103,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         if (simpleAuth.getCurrentUser() != null) {
+
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         }
@@ -150,6 +151,7 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         } catch (ApiException e) {
                             e.printStackTrace();
+                            displayToast("Authentication Failed :");
                         }
                     }
                 }
