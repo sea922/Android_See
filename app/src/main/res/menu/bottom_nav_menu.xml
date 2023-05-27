@@ -11,8 +11,9 @@
         android:icon="@drawable/ic_category"
         />
     <item
-        android:title=""
-        android:enabled="false"
+        android:id="@+id/mainNavBarMapBtn"
+        android:title="Map"
+        android:icon="@drawable/ic_map"
         />
     <item
         android:id="@+id/mainNavBarCartBtn"

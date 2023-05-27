@@ -52,6 +52,7 @@
             app:fabCustomSize="60dp"
             app:layout_anchor="@id/mainBottomNavBar"
             app:layout_anchorGravity="center_horizontal"
+            android:layout_marginBottom="65dp"
             app:srcCompat="@drawable/ic_search"
            />
 

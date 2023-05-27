@@ -96,6 +96,8 @@ public class MainActivity extends AppCompatActivity {
                                                     .replace(R.id.mainFragmentContainer, categoryFragment)
                                                     .commit();
                                             return true;
+                                        case R.id.mainNavBarMapBtn:
+                                            startActivity(new Intent(MainActivity.this, MapActivity.class));
                                     }
                                     return false;
                                 }
