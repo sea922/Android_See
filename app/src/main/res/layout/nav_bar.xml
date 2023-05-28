@@ -27,7 +27,7 @@ android:layout_marginTop="15dp"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@android:color/transparent"
-    android:src="@drawable/ic_love"
+    android:src="@drawable/ic_cart"
     android:layout_alignParentEnd="true"
     android:id="@+id/rightTopBarBtn"/>
 </RelativeLayout>

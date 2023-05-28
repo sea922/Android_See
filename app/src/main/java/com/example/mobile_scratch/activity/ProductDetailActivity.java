@@ -1,20 +1,14 @@
 package com.example.mobile_scratch.activity;
 
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
 import com.example.mobile_scratch.adapter.ProductDetailAdapter;
-import com.example.mobile_scratch.fragments.CategoryFragment;
 import com.example.mobile_scratch.models.CartItem;
 import com.example.mobile_scratch.models.ProductModel;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
 import android.util.Log;
@@ -22,18 +16,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 
 import com.example.mobile_scratch.R;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ProductDetailActivity extends AppCompatActivity {
@@ -51,6 +43,13 @@ public class ProductDetailActivity extends AppCompatActivity {
     LayoutInflater inflater;
 
     private int quantity = 1; // Default
+
+    private ImageView[] dots;
+
+    LinearLayout indicators;
+
+    int imgCount;
+
 
 
     @Override
@@ -78,7 +77,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         });
 
 
-        ImageButton leftTopBarBtn = findViewById(R.id.leftTopBarBtn);
+
 
         ImageButton backButton = findViewById(R.id.leftTopBarBtn);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -138,6 +137,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             }
         });
         bindView();
+        bindIndicators();
 
     }
 
@@ -159,7 +159,48 @@ public class ProductDetailActivity extends AppCompatActivity {
 //                    Log.e("ProductDetailActivity", "Error getting product details: " + e.getMessage());
 //                });
 //    }
+    private  void bindIndicators() {
+        indicators = findViewById(R.id.pagerIndicator);
+        imgCount = product.getImg().size();
+        dots = new ImageView[imgCount];
+        dots[0] = new ImageView(this);
+        dots[0].setImageDrawable(getDrawable(R.drawable.sh_img_indicator_active_dot));
+        indicators.addView(dots[0]);
+        for (int i=1; i<imgCount;i++) {
+            ImageView dot = new ImageView(this);
+           dot.setImageDrawable(getDrawable(R.drawable.sh_img_indicator_inactive_dot));
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(10, 0, 10, 0);
+            dot.setLayoutParams(params);
+           dots[i] = dot;
+           indicators.addView(dot);
+        }
+        imageViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                dots[position].setImageDrawable(getDrawable(R.drawable.sh_img_indicator_active_dot));
+                for(int i=0;i<imgCount;i++) {
+                    if (i!=position) {
+                        dots[i].setImageDrawable(getDrawable(R.drawable.sh_img_indicator_inactive_dot));
+                    }
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+    }
     private void bindView() {
         TextView productNameTextView = findViewById(R.id.productName);
         TextView productPriceTextView = findViewById(R.id.productPrice);
