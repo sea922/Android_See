@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import com.example.mobile_scratch.adapter.ProductDetailAdapter;
 import com.example.mobile_scratch.fragments.CategoryFragment;
+import com.example.mobile_scratch.models.CartItem;
 import com.example.mobile_scratch.models.ProductModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
@@ -31,6 +32,7 @@ import android.widget.ToggleButton;
 
 
 import com.example.mobile_scratch.R;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -57,6 +59,9 @@ public class ProductDetailActivity extends AppCompatActivity {
     RadioButton checkedButton;
 
     LayoutInflater inflater;
+
+    private int quantity = 1; // Default
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +95,40 @@ public class ProductDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish(); // Finish the current activity and navigate back to the previous activity
+            }
+        });
+
+        TextView quantityTextView = findViewById(R.id.quantityTextView);
+        Button decrementButton = findViewById(R.id.decrementButton);
+        Button incrementButton = findViewById(R.id.incrementButton);
+
+        // Set the initial
+        quantityTextView.setText(String.valueOf(quantity));
+
+        decrementButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (quantity > 1) {
+                    quantity--;
+                    quantityTextView.setText(String.valueOf(quantity));
+                }
+            }
+        });
+
+        incrementButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                quantity++;
+                quantityTextView.setText(String.valueOf(quantity));
+            }
+        });
+
+
+        Button btnAddToCart = findViewById(R.id.btnAddToCart);
+        btnAddToCart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addToCart();
             }
         });
 
@@ -133,13 +172,55 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     private void bindView() {
         TextView productNameTextView = findViewById(R.id.productName);
-//        TextView productPriceTextView = findViewById(R.id.productPriceTextView);
+        TextView productPriceTextView = findViewById(R.id.productPrice);
         TextView productDescTextView = findViewById(R.id.productDescription);
 
         productNameTextView.setText(name);
-//        productPriceTextView.setText(String.valueOf(price));
+        productPriceTextView.setText(price + "$");
         productDescTextView.setText(desc);
     }
+
+    private void addToCart() {
+        CartItem cartItem = new CartItem();
+        cartItem.setProductId(product.getProductID());
+        cartItem.setProductName(name);
+        cartItem.setPrice(price);
+        cartItem.setQuantity(quantity);
+        String selectedSize = getSelectedSize();
+
+        if (selectedSize.isEmpty()) {
+            // No size selected, display an error message or handle it as needed
+            Snackbar.make(getWindow().getDecorView(), "Please select a size", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+        cartItem.setSize(selectedSize);
+
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        CollectionReference cartRef = db.collection("cart");
+
+        cartRef.add(cartItem)
+                .addOnSuccessListener(documentReference -> {
+                    Snackbar.make(getWindow().getDecorView(), "Product added to cart", Snackbar.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Snackbar.make(getWindow().getDecorView(), "Failed to add product to cart", Snackbar.LENGTH_SHORT).show();
+                });
+
+
+    }
+    private String getSelectedSize() {
+        int selectedSizeId = sizeGroup.getCheckedRadioButtonId();
+        if (selectedSizeId != -1) {
+            RadioButton selectedSizeButton = findViewById(selectedSizeId);
+            return selectedSizeButton.getText().toString();
+        } else {
+            return "";
+        }
+    }
+
+
 
     @Override
     protected void onStop() {

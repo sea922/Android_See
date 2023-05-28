@@ -113,6 +113,9 @@ public class MainActivity extends AppCompatActivity {
                                                     .replace(R.id.mainFragmentContainer, userFragment)
                                                     .commit();
                                             return true;
+
+                                        case R.id.mainNavBarCartBtn:
+                                            //startActivity(new Intent(MainActivity.this, CartActivity.class));
                                     }
                                     return false;
                                 }

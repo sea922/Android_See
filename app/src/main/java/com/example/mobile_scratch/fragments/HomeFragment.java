@@ -2,13 +2,38 @@ package com.example.mobile_scratch.fragments;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.mobile_scratch.R;
+import com.example.mobile_scratch.adapter.ProductAdapter;
+import com.example.mobile_scratch.models.ProductModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,6 +50,25 @@ public class HomeFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private FirebaseFirestore db;
+    private ViewPager imageSlider;
+
+    private ViewPager sliderViewPager;
+    private RecyclerView productRecyclerView;
+
+    private ProductAdapter adapter;
+    private DatabaseReference productsRef;
+
+
+
+    private CollectionReference productCollectionRef;
+    private List<ProductModel> products;
+    private DatabaseReference databaseRef;
+
+    ArrayList<ProductModel> itemList = new ArrayList<>();
+    List<ProductModel> filteredItemList;
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -57,10 +101,44 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        HomeFragment fragment = new HomeFragment();
+        Bundle args = new Bundle();
+        args.putParcelableArrayList("products", itemList);
+        fragment.setArguments(args);
+
+//        Bundle extras =  this.getArguments();
+//        itemList = extras.getParcelableArrayList("products");
+
+        Bundle extras = getArguments();
+        if (extras != null) {
+            itemList = extras.getParcelableArrayList("products");
+            // Perform further operations with the itemList
+        }
+        // Rest of your code
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        super.onViewCreated(view, savedInstanceState);
+        productRecyclerView = getView().findViewById(R.id.productsRecyclerView);
+        Log.d("mockupItem", itemList.toString());
+        productRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), 2));
+        filteredItemList = new ArrayList<ProductModel>(itemList);
+        Log.d("adapter init data", filteredItemList.toString());
+        adapter = new ProductAdapter(this.getContext(), (ArrayList<ProductModel>) filteredItemList);
+
+        productRecyclerView.setAdapter(adapter);
+
+    }
+    public void onResume() {
+        super.onResume();
+        Log.d("on resume", "category fragment");
+
+    }
+
+
 }
