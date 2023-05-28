@@ -1,130 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activity.ProductDetailActivity"
-    android:orientation="vertical">
-
-    <include
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/nav_bar"
-        android:layout_marginTop="15dp"
-        android:layout_marginHorizontal="15dp" />
+        android:layout_height="match_parent"
+        tools:context=".activity.ProductDetailActivity"
+        android:orientation="vertical"
+        android:background="@drawable/bg_product_detail"
+        >
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="320dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginHorizontal="15dp">
-
-        <androidx.viewpager.widget.ViewPager
+        <include
+            android:id="@+id/topBar"
             android:layout_width="match_parent"
-            android:layout_height="310dp"
-            android:layout_marginStart="55dp"
-            android:id="@+id/productImagePager"/>
+            android:layout_height="wrap_content"
+            layout="@layout/nav_bar"
+            android:layout_marginTop="31dp"
+            android:layout_marginHorizontal="15dp"
+            />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:minWidth="50dp"
-            android:minHeight="50dp"
-            android:layout_gravity="start|top"
-            android:orientation="vertical">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="353dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginHorizontal="15dp">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="20dp"
-                android:text="Size"/>
-
-            <ScrollView
+            <androidx.viewpager.widget.ViewPager
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="15dp"
-                android:scrollbars="none">
+                android:layout_marginStart="55dp"
+                android:id="@+id/productImagePager"/>
 
-                <RadioGroup
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:minWidth="50dp"
+                android:minHeight="50dp"
+                android:layout_gravity="start|top"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="20dp"
+                    android:text="Size"/>
+
+                <ScrollView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/sizeGroup"
-                    android:orientation="vertical"
-                    app:singleSelection="true">
+                    android:layout_marginTop="15dp"
+                    android:scrollbars="none">
 
-                </RadioGroup>
-            </ScrollView>
-        </LinearLayout>
-    </FrameLayout>
+                    <RadioGroup
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/sizeGroup"
+                        android:orientation="vertical"
+                        app:singleSelection="true">
 
-    <!-- Product Description -->
-    <TextView
-        android:id="@+id/productName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_marginHorizontal="15dp"
-        android:textSize="18sp"
-        android:textAlignment="center"
-        android:textStyle="bold" />
-    <TextView
-        android:id="@+id/productPrice"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_marginHorizontal="15dp"
-        android:text=""
-        android:textAlignment="center"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:orientation="horizontal"
-        android:gravity="center">
+                    </RadioGroup>
+                </ScrollView>
+            </LinearLayout>
+        </FrameLayout>
 
-        <Button
-            android:id="@+id/decrementButton"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:text="-" />
-
+        <!-- Product Description -->
         <TextView
-            android:id="@+id/quantityTextView"
-            android:layout_width="wrap_content"
+            android:id="@+id/productName"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="1"
+            android:layout_marginTop="70dp"
+            android:layout_marginHorizontal="15dp"
             android:textSize="18sp"
+            android:textAlignment="textStart"
             android:textStyle="bold"
-            android:paddingHorizontal="8dp" />
+            />
+        <TextView
+            android:id="@+id/productPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginHorizontal="15dp"
+            android:text=""
+            android:textAlignment="textStart"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/productDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginHorizontal="15dp"
+            android:text="Product Description"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal"
+            android:gravity="left"
+            android:paddingHorizontal="15dp"
+            >
 
-        <Button
-            android:id="@+id/incrementButton"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="30px"
-            android:text="+" />
-        <Button
-            android:id="@+id/btnAddToCart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add to Cart"
-            android:textSize="14sp"
-            android:layout_gravity="center" />
+            <Button
+                android:id="@+id/decrementButton"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="-" />
+
+            <TextView
+                android:id="@+id/quantityTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingHorizontal="8dp" />
+
+            <Button
+                android:id="@+id/incrementButton"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="30px"
+                android:text="+" />
+            <Button
+                android:id="@+id/btnAddToCart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add to Cart"
+                android:textSize="14sp"
+                android:layout_gravity="center" />
+
+        </LinearLayout>
+
+
+
 
     </LinearLayout>
-    <TextView
-        android:id="@+id/productDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_marginHorizontal="15dp"
-        android:text="Product Description"
-        android:textSize="18sp"
-        android:textStyle="bold" />
 
 
-
-</LinearLayout>

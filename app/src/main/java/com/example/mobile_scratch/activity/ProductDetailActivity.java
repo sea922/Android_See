@@ -40,15 +40,6 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     ProductModel product;
 
-    String name;
-
-    Double price;
-
-    Double[] size;
-
-    String desc;
-
-    TextView test;
 
     FirebaseFirestore db;
 
@@ -56,7 +47,6 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     RadioGroup sizeGroup;
 
-    RadioButton checkedButton;
 
     LayoutInflater inflater;
 
@@ -68,9 +58,9 @@ public class ProductDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_detail);
         imageViewPager = findViewById(R.id.productImagePager);
-        db = FirebaseFirestore.getInstance();
-        product = getIntent().getParcelableExtra("product");
 
+        product = getIntent().getParcelableExtra("product");
+        Log.d("product in detail", product.getDesc());
         ProductDetailAdapter productDetailAdapter = new ProductDetailAdapter(ProductDetailActivity.this, product.getImg());
 
         imageViewPager.setAdapter(productDetailAdapter);
@@ -147,47 +137,47 @@ public class ProductDetailActivity extends AppCompatActivity {
                 }
             }
         });
+        bindView();
 
-        fetchProductDetails();
     }
 
-    private void fetchProductDetails() {
-        db.collection("products")
-                .document(product.getProductID())
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        name = documentSnapshot.getString("name");
-                        price = documentSnapshot.getDouble("price");
-//                        size = documentSnapshot.get("size", Double[].class);
-                        desc = documentSnapshot.getString("desc");
-                        bindView();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    // Handle any errors
-                    Log.e("ProductDetailActivity", "Error getting product details: " + e.getMessage());
-                });
-    }
+//    private void fetchProductDetails() {
+//        db.collection("products")
+//                .document(product.getProductID())
+//                .get()
+//                .addOnSuccessListener(documentSnapshot -> {
+//                    if (documentSnapshot.exists()) {
+//                        name = documentSnapshot.getString("name");
+//                        price = documentSnapshot.getDouble("price");
+////                        size = documentSnapshot.get("size", Double[].class);
+//                        desc = documentSnapshot.getString("desc");
+//                        bindView();
+//                    }
+//                })
+//                .addOnFailureListener(e -> {
+//                    // Handle any errors
+//                    Log.e("ProductDetailActivity", "Error getting product details: " + e.getMessage());
+//                });
+//    }
 
     private void bindView() {
         TextView productNameTextView = findViewById(R.id.productName);
         TextView productPriceTextView = findViewById(R.id.productPrice);
         TextView productDescTextView = findViewById(R.id.productDescription);
 
-        productNameTextView.setText(name);
-        productPriceTextView.setText(price + "$");
-        productDescTextView.setText(desc);
+        productNameTextView.setText(product.getName());
+        productPriceTextView.setText(product.getPrice() + "$");
+        productDescTextView.setText(product.getDesc());
     }
 
     private void addToCart() {
         CartItem cartItem = new CartItem();
         cartItem.setProductId(product.getProductID());
-        cartItem.setProductName(name);
-        cartItem.setPrice(price);
+        cartItem.setProductName(product.getName());
+        cartItem.setPrice(product.getPrice());
         cartItem.setQuantity(quantity);
         String selectedSize = getSelectedSize();
-
+        Log.d("slt size", selectedSize);
         if (selectedSize.isEmpty()) {
             // No size selected, display an error message or handle it as needed
             Snackbar.make(getWindow().getDecorView(), "Please select a size", Snackbar.LENGTH_SHORT).show();
