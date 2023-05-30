@@ -3,6 +3,8 @@ package com.example.mobile_scratch.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.HashMap;
+
 public class CartItem implements Parcelable {
     private String productId;
     private String productName;
@@ -13,7 +15,13 @@ public class CartItem implements Parcelable {
     public CartItem() {
 
     }
-
+    public  CartItem(HashMap<String, Object> item) {
+        this.productId = item.get("productId").toString();
+        this.price = (Double) Double.valueOf(item.get("price").toString());
+        this.quantity = Integer.valueOf(item.get("quantity").toString());
+        this.size = item.get("size").toString();
+        this.productName = item.get("name").toString();
+    }
     protected CartItem(Parcel in) {
         productId = in.readString();
         productName = in.readString();

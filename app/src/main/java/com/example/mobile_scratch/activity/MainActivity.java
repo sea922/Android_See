@@ -18,6 +18,7 @@ import com.example.mobile_scratch.adapter.ProductAdapter;
 import com.example.mobile_scratch.fragments.CategoryFragment;
 import com.example.mobile_scratch.fragments.HomeFragment;
 import com.example.mobile_scratch.fragments.UserFragment;
+import com.example.mobile_scratch.models.CartItem;
 import com.example.mobile_scratch.models.ProductModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
 
     ArrayList<ProductModel> itemList = new ArrayList<>();
+
+    ArrayList<CartItem> cartList = new ArrayList<>();
     FirebaseFirestore db;
 
     GoogleSignInClient googleSignInClient;
