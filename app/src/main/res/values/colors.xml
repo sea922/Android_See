@@ -10,7 +10,7 @@
     <color name="wine_2">#771731</color>
     <color name="grey">#A6A6A6</color>
     <color name="low_grey">#EFEFEF</color>
-    <color name="theme_button">#0386D0</color>
+    <color name="theme_button">#000000</color>
     <color name="theme_text">#ECCD5F</color>
     <color name="red">#FF0000</color>
     <color name="blank">#00000000</color>
