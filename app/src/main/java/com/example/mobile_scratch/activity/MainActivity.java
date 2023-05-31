@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.example.mobile_scratch.R;
 import com.example.mobile_scratch.adapter.ProductAdapter;
+import com.example.mobile_scratch.fragments.CartFragment;
 import com.example.mobile_scratch.fragments.CategoryFragment;
 import com.example.mobile_scratch.fragments.HomeFragment;
 import com.example.mobile_scratch.fragments.UserFragment;
@@ -52,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
 
     UserFragment userFragment;
 
+    CartFragment cartFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
         categoryFragment = new CategoryFragment();
 
         userFragment = new UserFragment();
+
+        cartFragment = new CartFragment();
 
         Bundle bundle = new Bundle();
 
@@ -114,8 +119,12 @@ public class MainActivity extends AppCompatActivity {
                                                     .commit();
                                             return true;
 
-                                        case R.id.mainNavBarCartBtn:
-                                            //startActivity(new Intent(MainActivity.this, CartActivity.class));
+                                        case R.id.mainNavBarCartBtn:Btn:
+                                            getSupportFragmentManager()
+                                                    .beginTransaction()
+                                                    .replace(R.id.mainFragmentContainer, cartFragment)
+                                                    .commit();
+                                            return true;
                                     }
                                     return false;
                                 }
