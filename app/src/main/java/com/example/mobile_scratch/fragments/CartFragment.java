@@ -20,6 +20,7 @@ import com.example.mobile_scratch.adapter.CartAdapter;
 import com.example.mobile_scratch.models.CartItem;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.common.util.concurrent.AtomicDouble;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -42,9 +43,8 @@ public class CartFragment extends Fragment {
     String user;
     FirebaseFirestore db;
 
-
-
-
+    TextView totalTextView;
+    AtomicDouble AtomicTotal;
 
     public CartFragment() {
         // Required empty public constructor
@@ -59,10 +59,11 @@ public class CartFragment extends Fragment {
         cartItems = new ArrayList<>();
 
 
+
         db = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
-
+        AtomicTotal = new AtomicDouble(0.00);
 
     }
 
@@ -76,7 +77,7 @@ public class CartFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        totalTextView = view.findViewById(R.id.textViewTotalPrice);
         ImageButton backButton = view.findViewById(R.id.leftTopBarBtn);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,7 +91,7 @@ public class CartFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        cartAdapter = new CartAdapter(getContext(), cartItems);
+        cartAdapter = new CartAdapter(getContext(), cartItems, totalTextView, AtomicTotal);
         recyclerView.setAdapter(cartAdapter);
 
         loadCartItems(new IProductListener() {
@@ -98,9 +99,12 @@ public class CartFragment extends Fragment {
             public void onSucess(List<CartItem> data) {
                 cartItems = data;
                 cartAdapter.notifyDataSetChanged();
-                Log.d("data on override", cartItems.toString());
+//                AtomicTotal.set(total);
+//                totalTextView.setText(total.toString());
+                //Log.d("data on override", cartItems.toString());
             }
         });
+
 
 
 
@@ -111,9 +115,7 @@ public class CartFragment extends Fragment {
 
         DocumentReference holeCartRef = db.document(path);
 
-        List<CartItem> tempListCart = new ArrayList<>();
 
-        List<Map<String, Object>> testList = new ArrayList<>();
 
         holeCartRef.get().addOnSuccessListener(test->{
             if (!test.exists()) {
@@ -121,7 +123,6 @@ public class CartFragment extends Fragment {
             }
             test.getData().forEach((id,item)->{
                 String[] variant = extractItemID(id);
-                AtomicReference<Map<String, Object>> wraperData = new AtomicReference<>();
 
                 Map<String, Object> dataForCartItem = (Map<String, Object>) item;
                 dataForCartItem.put("productId", variant[0]);
@@ -135,8 +136,11 @@ public class CartFragment extends Fragment {
                     dataForCartItem.put("name", task.get("name"));
                     int quantity = ((Number) dataForCartItem.get("quantity")).intValue();
                     dataForCartItem.replace("quantity", quantity);
-
-                    Log.d("temp data", dataForCartItem.toString());
+                    Double itemTotal = Double.valueOf(dataForCartItem.get("price").toString())*quantity;
+                    itemTotal = Math.round(itemTotal * 100.0) / 100.0;
+                    AtomicTotal.getAndAdd(itemTotal);
+                    totalTextView.setText(String.format("%.2f", AtomicTotal.get()));
+                    //Log.d("temp data", dataForCartItem.toString());
                     CartItem cartItem = new CartItem(dataForCartItem);
                     cartItems.add(cartItem);
                     productListener.onSucess(cartItems);
@@ -153,42 +157,13 @@ public class CartFragment extends Fragment {
         return new String[]{productID, size};
     }
 
-    interface IItemNameImage {
-        void storeDataString(Map<String, String> data);
-    }
-    private void retrieveItemNameImage(String productID,Map<String, Object> preData,  IItemNameImage iItemNameImage ) {
-        DocumentReference productDocRef = db.collection("products").document(productID);
 
-        productDocRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot task) {
-                if(!task.exists()) {
-                    return;
-                }
-                Map<String, Object> productData = task.getData();
-                try {
-                    Map<String, String> temp = new HashMap<>();
-                    String productName = productData.get("name").toString();
-                    String productImage= ((ArrayList<String>) productData.get("img")).get(0);
-                    if (productName == null || productImage == null) return;
-                    temp.put("name", productName);
-                    temp.put("img", productImage);
-
-
-                    iItemNameImage.storeDataString(temp);
-
-
-                } catch (Exception e) {
-                    Log.d("img assign err", e.getMessage());
-                };
-            }
-        });
-    }
 
 
     public interface IProductListener {
 
 
+//        void onSucess(List<CartItem> data, Double total);
         void onSucess(List<CartItem> data);
 
     }

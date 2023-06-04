@@ -1,5 +1,6 @@
 package com.example.mobile_scratch.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,10 +16,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mobile_scratch.R;
 import com.example.mobile_scratch.models.CartItem;
 import com.example.mobile_scratch.ultis.GlideApp;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.common.util.concurrent.AtomicDouble;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldPath;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
     private List<CartItem> cartItems;
@@ -27,12 +37,32 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
 
     FirebaseStorage storageFB;
 
-    public CartAdapter(Context mContext, List<CartItem> cartItems) {
+    FirebaseFirestore db;
+
+    String user;
+
+    DocumentReference cartRef;
+
+    TextView totalTextViewControl;
+
+    AtomicDouble total;
+
+    public CartAdapter(Context mContext, List<CartItem> cartItems, TextView totalTextView, AtomicDouble cartTotal) {
         this.cartItems = cartItems;
         this.mContext = mContext;
-        this.storageFB = FirebaseStorage.getInstance();
-        Log.d("receive cart items", cartItems.toString());
+        storageFB = FirebaseStorage.getInstance();
+        db = FirebaseFirestore.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        cartRef = db.collection("cart").document(user);
+        totalTextViewControl = totalTextView;
+        total = cartTotal;
+//      updateTotalTextView(total.get());
+
+
     }
+
+
+
 
     @NonNull
     @Override
@@ -44,42 +74,87 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // Bind data to the ViewHolder
+        Activity fragmentAssociateActivity = (Activity) this.mContext;
         CartItem cartItem = cartItems.get(position);
         Log.d("carItem binding name", cartItem.getProductName());
         StorageReference imgURL = storageFB.getReferenceFromUrl(cartItem.getImg());
 
-
+        holder.setIsRecyclable(false);
         holder.textViewProductName.setText(cartItem.getProductName());
         holder.textViewPrice.setText(String.valueOf(cartItem.getPrice()));
         holder.textViewQuantity.setText(String.valueOf(cartItem.getQuantity()));
-
+        holder.cartItemSize.setText(String.valueOf(cartItem.getSize()));
 
         GlideApp
                 .with(mContext)
                 .load(storageFB.getReferenceFromUrl(imgURL.toString())).into(holder.cartItemImg);
 
 
-
-
         holder.cartItemDelete.setOnClickListener(view -> {
-            cartItems.remove(holder.getBindingAdapterPosition());
-            notifyItemRemoved(holder.getBindingAdapterPosition());
-            notifyItemRangeChanged(holder.getBindingAdapterPosition(), cartItems.size());
+            total.getAndAdd(-cartItem.getPrice()*cartItem.getQuantity());
+            updateTotalTextView(total.get());
+            cartItems.remove(holder.getAbsoluteAdapterPosition());
+            FieldPath productFieldPath = FieldPath.of(cartItem.getProductId()+ cartItem.getSize());
+
+            cartRef.update(productFieldPath, FieldValue.delete()).addOnSuccessListener(task->{
+                notifyDataSetChanged();
+                notifyItemRangeChanged(holder.getAbsoluteAdapterPosition(), cartItems.size());
+                Snackbar.make(fragmentAssociateActivity.getWindow().getDecorView(), "Item deleted!", Snackbar.LENGTH_SHORT).show();
+            });
+
         });
 
         holder.cartItemDec.setOnClickListener(view -> {
-            cartItem.setQuantity(cartItem.getQuantity()-1);
+            int newQty = cartItem.getQuantity()-1;
+            total.getAndAdd(-cartItem.getPrice());
+            updateTotalTextView(total.get());
+            if (newQty==0) {
+                cartItems.remove(holder.getAbsoluteAdapterPosition());
+                FieldPath productFieldPath = FieldPath.of(cartItem.getProductId()+ cartItem.getSize());
+
+                cartRef.update(productFieldPath, FieldValue.delete()).addOnSuccessListener(task->{
+                    notifyDataSetChanged();
+                    notifyItemRangeChanged(holder.getAbsoluteAdapterPosition(), cartItems.size());
+                    Snackbar.make(fragmentAssociateActivity.getWindow().getDecorView(), "Item deleted!", Snackbar.LENGTH_SHORT).show();
+                });
+                return;
+            }
+            cartItem.setQuantity(newQty);
             holder.textViewQuantity.setText(String.valueOf(cartItem.getQuantity()));
+            updateQtyDB(newQty, cartItem.getProductId(), cartItem.getSize(),fragmentAssociateActivity);
+
         });
 
         holder.cartItemInc.setOnClickListener(view->{
-            cartItem.setQuantity(cartItem.getQuantity()+1);
+            int newQty = cartItem.getQuantity()+1;
+            total.getAndAdd(cartItem.getPrice());
+            updateTotalTextView(total.get());
+            cartItem.setQuantity(newQty);
+
             holder.textViewQuantity.setText(String.valueOf(cartItem.getQuantity()));
+            updateQtyDB(newQty, cartItem.getProductId(), cartItem.getSize(), fragmentAssociateActivity);
+
         });
+    }
+
+    private void updateQtyDB(int newQty, String ProductID, String size, Activity fragmentView) {
+        //FieldPath productFieldPath = FieldPath.of(ProductID+size);
+        String productFieldPath = ProductID+size;
+        FieldPath qtyFieldPath = FieldPath.of(productFieldPath, "quantity");
+        cartRef.update(qtyFieldPath, newQty).addOnSuccessListener(task->{
+            Snackbar.make(fragmentView.getWindow().getDecorView(), "Item quantity updated!", Snackbar.LENGTH_SHORT).show();
+        });
+
+    }
+
+    private void updateTotalTextView(Double total) {
+        Double round = Math.round(total * 100.0) / 100.0;
+        totalTextViewControl.setText(String.format("%.2f", round));
     }
 
     @Override
     public int getItemCount() {
+
         return cartItems.size();
     }
 

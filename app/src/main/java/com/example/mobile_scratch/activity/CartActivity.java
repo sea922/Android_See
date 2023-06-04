@@ -41,7 +41,7 @@ public class CartActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         cartItems = new ArrayList<>();
-        cartAdapter = new CartAdapter(this, cartItems);
+//        cartAdapter = new CartAdapter(this, cartItems);
         recyclerView.setAdapter(cartAdapter);
 
         db = FirebaseFirestore.getInstance();
