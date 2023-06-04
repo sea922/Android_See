@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class CartItem implements Parcelable {
     private String productId;
@@ -12,15 +13,18 @@ public class CartItem implements Parcelable {
     private String size;
     private int quantity;
 
+    private  String img;
+
     public CartItem() {
 
     }
-    public  CartItem(HashMap<String, Object> item) {
+    public  CartItem(Map<String, Object> item) {
         this.productId = item.get("productId").toString();
-        this.price = (Double) Double.valueOf(item.get("price").toString());
-        this.quantity = Integer.valueOf(item.get("quantity").toString());
+        this.price = (Double) item.get("price");
+        this.quantity = (Integer) item.get("quantity");
         this.size = item.get("size").toString();
         this.productName = item.get("name").toString();
+        this.img = item.get("img").toString();
     }
     protected CartItem(Parcel in) {
         productId = in.readString();
@@ -80,6 +84,10 @@ public class CartItem implements Parcelable {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public String getImg() {
+        return img;
     }
 
     @Override
