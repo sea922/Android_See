@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.CartFragment">
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -19,11 +19,13 @@
             android:layout_marginHorizontal="15dp"
             />
         <LinearLayout
+            android:layout_below="@id/topBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:paddingHorizontal="15dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:id="@+id/totalBar">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -36,17 +38,38 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:textAlignment="textEnd"
-                android:text="200"
+                android:text="0.00"
                 android:textSize="20dp"
                 android:drawableRight="@drawable/ic_dollar"/>
 
 
         </LinearLayout>
-
+        <Button
+            android:layout_below="@id/totalBar"
+            android:id="@+id/buttonProceedToPayment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Proceed to Payment"
+            android:layout_marginStart="15dp"
+            />
+        <Button
+        android:layout_below="@id/totalBar"
+        android:id="@+id/buttonEmptyCart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Empty cart"
+        android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@id/buttonProceedToPayment"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:backgroundTint="@color/red"
+        />
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="30dp">
+            android:layout_marginTop="10dp"
+            android:layout_below="@id/buttonProceedToPayment"
+            >
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
@@ -55,17 +78,11 @@
 
                 />
 
-            <Button
-                android:id="@+id/buttonProceedToPayment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Proceed to Payment"
-                android:layout_gravity="bottom|center"
-                android:layout_marginBottom="15dp"/>
+
         </FrameLayout>
 
 
-    </LinearLayout>
+    </RelativeLayout>
 
 </FrameLayout>
 
