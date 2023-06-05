@@ -119,6 +119,8 @@ public class CartFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
+        recyclerView.setHasFixedSize(true);
+
         cartAdapter = new CartAdapter(getContext(), cartItems, totalTextView, AtomicTotal);
         recyclerView.setAdapter(cartAdapter);
 
@@ -137,6 +139,7 @@ public class CartFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), PaymentActivity.class);
+
                 startActivity(intent);
                 clearCart();
             }
