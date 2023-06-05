@@ -35,8 +35,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -94,8 +96,33 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             bundle.putParcelableArrayList("products", itemList);
-                            homeFragment.setArguments(bundle);
                             categoryFragment.setArguments(bundle);
+
+
+                            ArrayList<ProductModel> filteredItemList = new ArrayList<>();
+                            if (!itemList.isEmpty()) {
+                                Random random = new Random();
+                                HashSet<Integer> uniqueIndices = new HashSet<>();
+                                while (uniqueIndices.size() < 4) {
+                                    int randomIndex = random.nextInt(itemList.size());
+                                    uniqueIndices.add(randomIndex);
+                                }
+
+                                for (int index : uniqueIndices) {
+                                    filteredItemList.add(itemList.get(index));
+                                }
+                            }
+
+
+
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelableArrayList("products", filteredItemList);
+                            homeFragment.setArguments(bundle);
+
+                            getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.mainFragmentContainer, homeFragment)
+                                    .commit();
                             bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
                                 @Override
                                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
