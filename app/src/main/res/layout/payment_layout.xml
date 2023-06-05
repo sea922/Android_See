@@ -1,0 +1,42 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="100dp"
+    android:layout_marginRight="20dp"
+    android:layout_marginLeft="20dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Payment"
+        android:textSize="20dp"
+        android:textColor="@color/black"
+        android:textStyle="italic"
+        android:layout_gravity="center"/>
+
+    <EditText
+        android:id="@+id/editTextCardNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Card Number" />
+
+    <EditText
+        android:id="@+id/editTextExpiryDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Expiry Date" />
+
+    <EditText
+        android:id="@+id/editTextCVV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="CVV" />
+
+    <Button
+        android:id="@+id/buttonPay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pay" />
+
+</LinearLayout>

@@ -68,12 +68,14 @@ public class MainActivity extends AppCompatActivity {
         itemList.clear();
         homeFragment = new HomeFragment();
         categoryFragment = new CategoryFragment();
+        cartFragment = new CartFragment();
 
         userFragment = new UserFragment();
 
         cartFragment = new CartFragment();
 
         Bundle bundle = new Bundle();
+
 
         bottomNavigationView = findViewById(R.id.mainBottomNavBar);
 
@@ -90,7 +92,9 @@ public class MainActivity extends AppCompatActivity {
                                 productModel.setProductID(document.getId());
                                 itemList.add(productModel);
                             }
+
                             bundle.putParcelableArrayList("products", itemList);
+                            homeFragment.setArguments(bundle);
                             categoryFragment.setArguments(bundle);
                             bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
                                 @Override
@@ -122,7 +126,9 @@ public class MainActivity extends AppCompatActivity {
                                                     .commit();
                                             return true;
 
-                                        case R.id.mainNavBarCartBtn:Btn:
+
+                             case R.id.mainNavBarCartBtn:
+//                                            startActivity(new Intent(MainActivity.this, CartActivity.class));
                                             getSupportFragmentManager()
                                                     .beginTransaction()
                                                     .replace(R.id.mainFragmentContainer, cartFragment)

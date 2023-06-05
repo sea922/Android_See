@@ -1,8 +1,11 @@
 package com.example.mobile_scratch.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.example.mobile_scratch.adapter.ProductDetailAdapter;
+import com.example.mobile_scratch.fragments.CartFragment;
+import com.example.mobile_scratch.fragments.HomeFragment;
 import com.example.mobile_scratch.models.CartItem;
 import com.example.mobile_scratch.models.ProductModel;
 import com.google.android.material.snackbar.Snackbar;
@@ -28,6 +31,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
@@ -103,6 +107,15 @@ public class ProductDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish(); // Finish the current activity and navigate back to the previous activity
+            }
+        });
+
+        ImageButton rightTopBarBtn = findViewById(R.id.rightTopBarBtn);
+        rightTopBarBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+                startActivity(new Intent(ProductDetailActivity.this, CartActivity.class));
             }
         });
 
@@ -228,58 +241,42 @@ public class ProductDetailActivity extends AppCompatActivity {
         }
         cartItem.setSize(selectedSize);
 
-
-        cartRef.get().addOnSuccessListener(task-> {
-           if(!task.exists()) {
-               //user does not have cart yet, create new cart document
-               Map<String, String> dummy = new HashMap<>();
-               dummy.put("date", new Timestamp(System.currentTimeMillis()).toString());
-               cartRef.set(dummy);
+        FieldPath cartVariantID = FieldPath.of(String.format("%s%s", cartItem.getProductId(), cartItem.getSize()));
+        cartRef.get().addOnSuccessListener(task->{
+           if (task.exists()) {
+               if(task.get(cartVariantID) != null) {
+                   //Log.d("data", task.get(cartVariantID).toString());
+                   Map<String, Number> data = (Map<String, Number>) task.get(cartVariantID);
+                   //tang so luong
+                   int newQty = cartItem.getQuantity() + data.get("quantity").intValue();
+                   data.replace("quantity", newQty);
+                   cartRef
+                           .update(cartVariantID, data)
+                           .addOnFailureListener(e->{notifyErrAdd2Cart(e);}); //overwrite
+                   Snackbar.make(getWindow().getDecorView(), "Product quantity increased in cart", Snackbar.LENGTH_SHORT).show();
+                   return;
+               }
            }
+           //them bien the moi, san pham moi
+            //neu khach chua co gio hang thi auto tao moi
+            Map<String, Number> variant = new HashMap<>();
+            variant.put("quantity", cartItem.getQuantity());
+            variant.put("price", cartItem.getPrice());
+            Map<String, Object> data = new HashMap<>();
+            String path = String.format("%s%s", cartItem.getProductId(), cartItem.getSize());
+            data.put(path, variant);
+            cartRef
+                    .set(data, SetOptions.merge())
+                    .addOnFailureListener(e->{notifyErrAdd2Cart(e);});
+            Snackbar.make(getWindow().getDecorView(), "New product added into cart", Snackbar.LENGTH_SHORT).show();
         });
+    }
 
-
-        CollectionReference productRef = cartRef.collection(cartItem.getProductId());
-        productRef.get().addOnSuccessListener(task -> {
-           if (!task.isEmpty()) {
-               //user is having added product in cart
-               List<DocumentSnapshot> docs = task.getDocuments();
-               for(int i = 0;i< docs.size();i++){
-                    DocumentSnapshot doc = docs.get(i);
-                    if (cartItem.getSize().equals(doc.getId())) {
-                        //same product, same size -> increase quantity
-                       int newQty = cartItem.getQuantity() + Integer.valueOf(doc.get("quantity").toString());
-                       productRef.document(doc.getId()).update("quantity",newQty );
-                       Snackbar.make(getWindow().getDecorView(), "Product quantity increased in cart", Snackbar.LENGTH_SHORT).show();
-                       return;
-                   }
-               };
-                //same product, different size -> add new variant document
-               Map<String, Number> newVariantData = new HashMap<>();
-               newVariantData.put("quantity", cartItem.getQuantity());
-               newVariantData.put("price", cartItem.getPrice());
-               productRef.document(cartItem.getSize()).set(newVariantData, SetOptions.merge());
-               Snackbar.make(getWindow().getDecorView(), "Product variant added into cart", Snackbar.LENGTH_SHORT).show();
-           } else {
-               //user is NOT having added product in cart -> create new collection for added product
-               Map<String, Number> newVariantData = new HashMap<>();
-               newVariantData.put("quantity", cartItem.getQuantity());
-               newVariantData.put("price", cartItem.getPrice());
-               cartRef
-                       .collection(cartItem.getProductId())
-                       .document(cartItem.getSize())
-                       .set(newVariantData, SetOptions.merge());
-               Snackbar.make(getWindow().getDecorView(), "New product added into cart", Snackbar.LENGTH_SHORT).show();
-           }
-        }).addOnFailureListener(e -> {
-            Snackbar.make(
-                    getWindow().getDecorView(),
-                    String.format("Failed to add product to cart, cause by %s", e.getMessage()),
-                    Snackbar.LENGTH_LONG
-            ).show();
-        });
-
-
+    private void notifyErrAdd2Cart(Exception e) {
+        Snackbar.make(
+                getWindow().getDecorView(),
+                String.format("Failed to add product to cart, cause by %s", e.getMessage()),
+                Snackbar.LENGTH_LONG).show();
     }
     private String getSelectedSize() {
         int selectedSizeId = sizeGroup.getCheckedRadioButtonId();

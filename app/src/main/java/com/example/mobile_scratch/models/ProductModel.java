@@ -24,15 +24,15 @@ public class ProductModel implements Parcelable{
     public ProductModel() {
     }
 
-//    public ProductModel(String productID, String[] img, String name, Double price, String cat, double[] size, String desc) {
-//        this.productID = productID;
-//        this.img = img;
-//        this.name = name;
-//        this.price = price;
-//        this.cat = cat;
-//        this.size = size;
-//        this.desc = desc;
-//    }
+    public ProductModel(String productID, ArrayList<String> img, String name, Double price, String cat, ArrayList<Double> size, String desc) {
+        this.productID = productID;
+        this.img = img;
+        this.name = name;
+        this.price = price;
+        this.cat = cat;
+        this.size = size;
+        this.desc = desc;
+    }
 
 
     public String getProductID() {
