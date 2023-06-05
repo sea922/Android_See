@@ -25,6 +25,16 @@
             android:layout_height="wrap_content"
             android:text="Search" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonVoiceInput"
+            android:layout_width="60dp"
+            android:layout_marginLeft="10dp"
+            android:layout_height="wrap_content"
+            android:onClick="startSpeechToText"
+            app:icon="@drawable/ic_mic"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+
     </LinearLayout>
 
     <ImageView
