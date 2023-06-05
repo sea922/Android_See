@@ -100,7 +100,7 @@ public class CartFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // Clear all items in the cart
-                clearCart();
+                clearCart2();
             }
         });
 
@@ -261,6 +261,42 @@ public class CartFragment extends Fragment {
                 });
     }
 
+    private void clearCart2() {
+        String path = String.format("cart/%s", user);
+        DocumentReference cartRef = db.document(path);
+
+        cartRef.get().addOnSuccessListener(cartSnapshot -> {
+                    if (!cartSnapshot.exists()) {
+                        return;
+                    }
+
+                    // Get cart items from the snapshot
+                    Map<String, Object> cartData = cartSnapshot.getData();
+
+                    // Create order document with the user's email as the ID
+
+                                cartItems.clear();
+                                cartAdapter.notifyDataSetChanged();
+
+                                // Reset the total amount
+                                AtomicTotal.set(0.00);
+                                totalTextView.setText("0.00");
+
+                    cartRef.delete()
+                            .addOnSuccessListener(aVoid1 -> {
+                                // Cart cleared successfully
+                                Toast.makeText(getContext(), "Cart cleared", Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> {
+                                // Failed to clear cart
+                                Toast.makeText(getContext(), "Failed to clear cart", Toast.LENGTH_SHORT).show();
+                            });
 
 
+                })
+                .addOnFailureListener(e -> {
+                    // Failed to fetch cart data
+                    Toast.makeText(getContext(), "Failed to fetch cart items", Toast.LENGTH_SHORT).show();
+                });
+    }
 }

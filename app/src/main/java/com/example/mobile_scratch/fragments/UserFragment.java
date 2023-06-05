@@ -33,6 +33,8 @@ public class UserFragment extends Fragment {
         logout = rootView.findViewById(R.id.logout);
 
         simpleAuth = FirebaseAuth.getInstance();
+
+        System.out.println("CONC");
         googleSignInClient = GoogleSignIn.getClient(requireActivity(), GoogleSignInOptions.DEFAULT_SIGN_IN);
 
         logout.setOnClickListener(new View.OnClickListener() {

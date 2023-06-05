@@ -2,6 +2,7 @@ package com.example.mobile_scratch.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -27,6 +28,7 @@ public class UserActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
         logout = findViewById(R.id.logout);
+
 
         simpleAuth = FirebaseAuth.getInstance();
         googleSignInClient = GoogleSignIn.getClient(UserActivity.this, GoogleSignInOptions.DEFAULT_SIGN_IN);
