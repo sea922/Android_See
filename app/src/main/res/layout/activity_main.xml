@@ -22,17 +22,18 @@
             app:layout_constraintTop_toTopOf="parent">
 
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/mainFragmentContainer"
-            android:name="com.example.mobile_scratch.fragments.HomeFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/mainFragmentContainer"
+                    android:name="com.example.mobile_scratch.fragments.HomeFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
 
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_above="@id/mainBottomNavBar"
-            tools:layout="@layout/fragment_home" />
+                    android:layout_above="@id/mainBottomNavBar"
+                    android:layout_marginBottom="-1dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:layout="@layout/fragment_home" />
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
+                <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/mainBottomNavBar"
             android:layout_width="match_parent"
             android:layout_height="62dp"

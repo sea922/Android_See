@@ -34,6 +34,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -140,6 +141,7 @@ public class CartFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), PaymentActivity.class);
 
                 startActivity(intent);
+                clearCart();
             }
         });
 
@@ -210,31 +212,57 @@ public class CartFragment extends Fragment {
         String path = String.format("cart/%s", user);
         DocumentReference cartRef = db.document(path);
 
-        cartRef.delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // Cart cleared successfully
-                        Toast.makeText(getContext(), "Cart cleared", Toast.LENGTH_SHORT).show();
-
-                        // Clear the cartItems list and update the adapter
-                        cartItems.clear();
-                        cartAdapter.notifyDataSetChanged();
-
-                        // Reset the total amount
-                        AtomicTotal.set(0.00);
-                        totalTextView.setText("0.00");
+        cartRef.get().addOnSuccessListener(cartSnapshot -> {
+                    if (!cartSnapshot.exists()) {
+                        return;
                     }
+
+                    // Get cart items from the snapshot
+                    Map<String, Object> cartData = cartSnapshot.getData();
+
+                    // Create order document with the user's email as the ID
+                    DocumentReference orderDocRef = db.collection("orders").document(user);
+                    String orderId = orderDocRef.getId();
+
+                    // Add cart items to the order document
+                    Map<String, Object> orderData = new HashMap<>();
+                    orderData.put("order_details", cartData);
+                    orderData.put("total", AtomicTotal.get());
+                    orderData.put("timestamp", FieldValue.serverTimestamp());
+                    orderDocRef.set(orderData)
+                            .addOnSuccessListener(aVoid -> {
+                                // Order details added successfully
+                                Toast.makeText(getContext(), "Order placed successfully", Toast.LENGTH_SHORT).show();
+
+                                // Clear the cartItems list and update the adapter
+                                cartItems.clear();
+                                cartAdapter.notifyDataSetChanged();
+
+                                // Reset the total amount
+                                AtomicTotal.set(0.00);
+                                totalTextView.setText("0.00");
+
+                                // Delete the cart
+                                cartRef.delete()
+                                        .addOnSuccessListener(aVoid1 -> {
+                                            // Cart cleared successfully
+                                            Toast.makeText(getContext(), "Cart cleared", Toast.LENGTH_SHORT).show();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            // Failed to clear cart
+                                            Toast.makeText(getContext(), "Failed to clear cart", Toast.LENGTH_SHORT).show();
+                                        });
+                            })
+                            .addOnFailureListener(e -> {
+                                // Failed to add order details
+                                Toast.makeText(getContext(), "Failed to place order", Toast.LENGTH_SHORT).show();
+                            });
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Failed to clear cart
-                        Toast.makeText(getContext(), "Failed to clear cart", Toast.LENGTH_SHORT).show();
-                    }
+                .addOnFailureListener(e -> {
+                    // Failed to fetch cart data
+                    Toast.makeText(getContext(), "Failed to fetch cart items", Toast.LENGTH_SHORT).show();
                 });
     }
-
 
 
 

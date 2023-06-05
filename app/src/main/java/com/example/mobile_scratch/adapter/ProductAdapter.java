@@ -37,6 +37,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductViewHolder> {
 
     }
 
+    public void updateData(ArrayList<ProductModel> newData) {
+        rootItemList.clear();
+        rootItemList.addAll(newData);
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

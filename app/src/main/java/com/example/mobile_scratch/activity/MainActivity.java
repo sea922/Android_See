@@ -35,6 +35,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                             if (!itemList.isEmpty()) {
                                 Random random = new Random();
                                 HashSet<Integer> uniqueIndices = new HashSet<>();
-                                while (uniqueIndices.size() < 4) {
+                                while (uniqueIndices.size() < 11) {
                                     int randomIndex = random.nextInt(itemList.size());
                                     uniqueIndices.add(randomIndex);
                                 }
@@ -111,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
                                 for (int index : uniqueIndices) {
                                     filteredItemList.add(itemList.get(index));
                                 }
+                                Collections.shuffle(filteredItemList);
                             }
 
 
