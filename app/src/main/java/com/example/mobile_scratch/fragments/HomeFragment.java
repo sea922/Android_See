@@ -1,5 +1,6 @@
 package com.example.mobile_scratch.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -76,6 +78,9 @@ public class HomeFragment extends Fragment {
 
     private EditText searchEditText;
     private String searchQuery;
+    private static final int SPEECH_REQUEST_CODE = 123;
+    private Button buttonVoiceInput;
+
 
 
     public HomeFragment() {
@@ -135,6 +140,14 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         productRecyclerView = getView().findViewById(R.id.productsRecyclerView);
         searchEditText = view.findViewById(R.id.editTextSearch);
+        buttonVoiceInput = view.findViewById(R.id.buttonVoiceInput);
+        buttonVoiceInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startSpeechToText();
+            }
+        });
+
 //        searchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 //            @Override
 //            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -184,7 +197,34 @@ public class HomeFragment extends Fragment {
         }
 
         adapter.updateData(searchResults);
+
     }
+
+    private void startSpeechToText() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Nói đi nào...");
+
+        try {
+            startActivityForResult(intent, SPEECH_REQUEST_CODE);
+        } catch (Exception e) {
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SPEECH_REQUEST_CODE && resultCode == getActivity().RESULT_OK && data != null) {
+            ArrayList<String> voiceResults = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            if (voiceResults != null && !voiceResults.isEmpty()) {
+                searchQuery = voiceResults.get(0);
+                searchEditText.setText(searchQuery);
+                performSearch(searchQuery);
+            }
+        }
+    }
+
+
 
 
 }
