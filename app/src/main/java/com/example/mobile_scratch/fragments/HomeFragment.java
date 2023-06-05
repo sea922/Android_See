@@ -11,9 +11,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.mobile_scratch.R;
 import com.example.mobile_scratch.adapter.ProductAdapter;
@@ -69,6 +74,9 @@ public class HomeFragment extends Fragment {
     ArrayList<ProductModel> itemList = new ArrayList<>();
     List<ProductModel> filteredItemList;
 
+    private EditText searchEditText;
+    private String searchQuery;
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -123,8 +131,33 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
+
         super.onViewCreated(view, savedInstanceState);
         productRecyclerView = getView().findViewById(R.id.productsRecyclerView);
+        searchEditText = view.findViewById(R.id.editTextSearch);
+//        searchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+//                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+//                    searchQuery = searchEditText.getText().toString().trim();
+//                    performSearch();
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
+
+        Button buttonSearch = view.findViewById(R.id.buttonSearch);
+        buttonSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String searchQuery = searchEditText.getText().toString();
+
+                performSearch(searchQuery);
+            }
+        });
+
         Log.d("mockupItem", itemList.toString());
         productRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), 2));
         filteredItemList = new ArrayList<ProductModel>(itemList);
@@ -133,11 +166,24 @@ public class HomeFragment extends Fragment {
 
         productRecyclerView.setAdapter(adapter);
 
+
     }
     public void onResume() {
         super.onResume();
         Log.d("on resume", "category fragment");
 
+    }
+
+    private void performSearch(String searchQuery) {
+        ArrayList<ProductModel> searchResults = new ArrayList<>();
+
+        for (ProductModel product : itemList) {
+            if (product.getName().toLowerCase().contains(searchQuery.toLowerCase())) {
+                searchResults.add(product);
+            }
+        }
+
+        adapter.updateData(searchResults);
     }
 
 
