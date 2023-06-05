@@ -53,6 +53,7 @@ public class CartActivity extends AppCompatActivity {
         user = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         loadCartItems();
 
+
     }
 
     private void loadCartItems() {

@@ -20,10 +20,13 @@ import android.widget.Toast;
 
 import com.example.mobile_scratch.R;
 import com.example.mobile_scratch.activity.CartActivity;
+import com.example.mobile_scratch.activity.MainActivity;
 import com.example.mobile_scratch.activity.PaymentActivity;
+import com.example.mobile_scratch.activity.ProductDetailActivity;
 import com.example.mobile_scratch.adapter.CartAdapter;
 import com.example.mobile_scratch.adapter.PaymentRequest;
 import com.example.mobile_scratch.models.CartItem;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.AtomicDouble;
@@ -91,12 +94,24 @@ public class CartFragment extends Fragment {
         totalTextView = view.findViewById(R.id.textViewTotalPrice);
         ImageButton backButton = view.findViewById(R.id.leftTopBarBtn);
 
+        Button buttonEmptyCart = view.findViewById(R.id.buttonEmptyCart);
+        buttonEmptyCart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Clear all items in the cart
+                clearCart();
+            }
+        });
+
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().onBackPressed(); // Finish the current activity and navigate back to the previous activity
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
             }
         });
+
         // Inflate the layout for this fragment
         view.findViewById(R.id.rightTopBarBtn).setEnabled(false);
         ((TextView) view.findViewById(R.id.titleTopBarText)).setText("Check Out");
@@ -187,5 +202,37 @@ public class CartFragment extends Fragment {
         void onSucess(List<CartItem> data);
 
     }
+
+    private void clearCart() {
+        String path = String.format("cart/%s", user);
+        DocumentReference cartRef = db.document(path);
+
+        cartRef.delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // Cart cleared successfully
+                        Toast.makeText(getContext(), "Cart cleared", Toast.LENGTH_SHORT).show();
+
+                        // Clear the cartItems list and update the adapter
+                        cartItems.clear();
+                        cartAdapter.notifyDataSetChanged();
+
+                        // Reset the total amount
+                        AtomicTotal.set(0.00);
+                        totalTextView.setText("0.00");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Failed to clear cart
+                        Toast.makeText(getContext(), "Failed to clear cart", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
+
 
 }

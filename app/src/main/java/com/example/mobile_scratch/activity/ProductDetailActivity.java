@@ -11,6 +11,7 @@ import com.example.mobile_scratch.models.ProductModel;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 import android.util.Log;
@@ -115,7 +116,8 @@ public class ProductDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
-                startActivity(new Intent(ProductDetailActivity.this, CartActivity.class));
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.popBackStack();
             }
         });
 
