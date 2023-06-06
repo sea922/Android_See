@@ -1,6 +1,9 @@
 plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-android'
+
 }
 
 android {
@@ -46,6 +49,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage-ktx:20.2.0'
     implementation 'androidx.navigation:navigation-fragment:2.5.3'
     implementation 'androidx.navigation:navigation-ui:2.5.3'
+    implementation 'com.google.firebase:firebase-functions:20.3.1'
+    implementation "androidx.core:core-ktx:1.9.0"
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -61,10 +66,13 @@ dependencies {
     implementation 'com.stripe:stripe-android:20.25.4'
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
     implementation 'com.google.android.gms:play-services-location:18.0.0'
-
+    implementation 'com.github.kittinunf.fuel:fuel:2.3.1'
+       implementation 'com.github.kittinunf.fuel:fuel-json:2.3.1'
     implementation 'com.google.firebase:firebase-auth:21.0.1'
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
     implementation 'com.google.firebase:firebase-database:20.0.0'
+    implementation 'com.google.firebase:firebase-functions-ktx:19.0.2'
+    implementation 'com.google.firebase:firebase-firestore-ktx:21.5.0'
 
 
 }

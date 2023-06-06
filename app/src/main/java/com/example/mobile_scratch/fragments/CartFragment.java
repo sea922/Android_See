@@ -22,6 +22,7 @@ import com.example.mobile_scratch.R;
 import com.example.mobile_scratch.activity.CartActivity;
 import com.example.mobile_scratch.activity.MainActivity;
 import com.example.mobile_scratch.activity.PaymentActivity;
+import com.example.mobile_scratch.activity.PaymentActivity2;
 import com.example.mobile_scratch.activity.ProductDetailActivity;
 import com.example.mobile_scratch.adapter.CartAdapter;
 import com.example.mobile_scratch.adapter.PaymentRequest;
@@ -138,8 +139,10 @@ public class CartFragment extends Fragment {
         buttonProceedToPayment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), PaymentActivity.class);
-
+                Intent intent = new Intent(getActivity(), PaymentActivity2.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("total",String.valueOf(AtomicTotal.get()));
+                intent.putExtras(bundle);
                 startActivity(intent);
                 clearCart();
             }

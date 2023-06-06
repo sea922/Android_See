@@ -38,7 +38,7 @@
             android:name=".activity.CartActivity"
             android:exported="false" />
         <activity
-            android:name=".activity.PaymentActivity"
+            android:name="com.example.mobile_scratch.activity.PaymentActivity2"
             android:exported="false" />
         <activity
             android:name=".activity.HistoryOrderActivity"
@@ -66,3 +66,6 @@
     </application>
 
 </manifest>
+
+
+
