@@ -22,6 +22,7 @@
         android:id="@+id/textOrderID"
         />
     <TextView
+        android:id="@+id/labelOrderAmoun"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Amount"
@@ -39,6 +40,26 @@
         android:id="@+id/textOrderAMount"
         android:layout_below="@+id/labelOrderID"
         android:drawableRight="@drawable/ic_dollar"
+        />
+    <TextView
+        android:id="@+id/labelOrderStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Payment Status"
+        android:layout_below="@+id/labelOrderAmoun"
+        android:layout_marginTop="10dp"
+
+        />
+    <TextView
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="success"
+        android:layout_alignParentEnd="true"
+
+        android:id="@+id/textOrderStatus"
+        android:layout_below="@+id/textOrderAMount"
+
         />
 
 </RelativeLayout>
