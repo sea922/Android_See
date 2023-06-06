@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="10dp"
+    android:paddingHorizontal="15dp">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OrderID"
+        android:layout_alignParentStart="true"
+        android:id="@+id/labelOrderID"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ABC"
+        android:layout_alignParentEnd="true"
+
+        android:id="@+id/textOrderID"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Amount"
+        android:layout_below="@+id/labelOrderID"
+        android:layout_marginTop="10dp"
+
+        />
+    <TextView
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0.00"
+        android:layout_alignParentEnd="true"
+        android:textSize="20dp"
+        android:id="@+id/textOrderAMount"
+        android:layout_below="@+id/labelOrderID"
+        android:drawableRight="@drawable/ic_dollar"
+        />
+
+</RelativeLayout>
