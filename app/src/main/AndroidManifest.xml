@@ -41,6 +41,9 @@
             android:name="com.example.mobile_scratch.activity.PaymentActivity2"
             android:exported="false" />
         <activity
+            android:name=".activity.HistoryOrderActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.SplashScreenActivity"
             android:exported="true"
             android:theme="@style/SplashscreenTheme">
