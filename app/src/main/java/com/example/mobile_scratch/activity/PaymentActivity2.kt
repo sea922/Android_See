@@ -86,7 +86,8 @@ class PaymentActivity2 : AppCompatActivity() {
         }
         currentUser = FirebaseAuth.getInstance().currentUser
 
-        binding.totalTextview.text = total.toString();
+//        binding.totalTextview.text = String.format("%.2f", total.toString())
+        binding.totalTextview.text = totalD.toString()
 
         binding.paymentmethod.setOnClickListener {
             // Create the customer session and kick start the payment flow
@@ -170,8 +171,9 @@ class PaymentActivity2 : AppCompatActivity() {
                                 (it as String)
                             ))
 
+                            binding.totalTextview.text = 0.00.toString();
+                            Toast.makeText(applicationContext, "Payment Success!!", Toast.LENGTH_LONG).show()
 
-                            Toast.makeText(applicationContext, "Payment Done!!", Toast.LENGTH_LONG).show()
                         }
                     } else {
                         Log.e("payment", "Current payment intent : null")
