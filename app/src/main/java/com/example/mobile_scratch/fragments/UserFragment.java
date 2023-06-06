@@ -111,14 +111,10 @@ public class UserFragment extends Fragment {
     Button logout;
     GoogleSignInClient googleSignInClient;
     FirebaseAuth simpleAuth;
-    TextView nameTextView;
-    TextView emailTextView;
+
 
     FirebaseUser currentUser;
-    Button changePassword;
-    Button history;
-    EditText oldPasswordEditText;
-    EditText newPasswordEditText;
+
 
 
     ListView orderList;
@@ -138,12 +134,6 @@ public class UserFragment extends Fragment {
 
         logout = rootView.findViewById(R.id.logout);
 
-        nameTextView = rootView.findViewById(R.id.textViewName);
-        emailTextView = rootView.findViewById(R.id.textViewEmail);
-        changePassword = rootView.findViewById(R.id.buttonChangePassword);
-        oldPasswordEditText = rootView.findViewById(R.id.editTextOldPassword);
-        newPasswordEditText = rootView.findViewById(R.id.editTextNewPassword);
-        history = rootView.findViewById(R.id.buttonHistory);
 
 
 
@@ -164,17 +154,7 @@ public class UserFragment extends Fragment {
 
         currentUser = simpleAuth.getCurrentUser();
 
-        if (currentUser != null) {
-            String name = currentUser.getDisplayName();
-            String email = currentUser.getEmail();
 
-            nameTextView.setText(name);
-            emailTextView.setText(email);
-
-            Log.d("UserAcc", "Current user: " + name + ", " + email);
-        } else {
-            Log.d("UserAcc", "No user login");
-        }
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -202,48 +182,7 @@ public class UserFragment extends Fragment {
 
         });
 
-        history.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), HistoryOrderActivity.class);
 
-                startActivity(intent);
-            }
-        });
-        changePassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                String oldPassword = oldPasswordEditText.getText().toString().trim();
-                final String newPassword = newPasswordEditText.getText().toString().trim();
-
-                if (oldPassword.isEmpty() || newPassword.isEmpty()) {
-                    Toast.makeText(requireContext(), "Please enter old and new passwords", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                currentUser.reauthenticate(EmailAuthProvider.getCredential(currentUser.getEmail(), oldPassword))
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    currentUser.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                Toast.makeText(requireContext(), "Password changed successfully", Toast.LENGTH_SHORT).show();
-                                            } else {
-                                                Toast.makeText(requireContext(), "Failed to change password", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    Toast.makeText(requireContext(), "Authentication failed. Please check your old password", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-            }
-        });
         return rootView;
     }
 
