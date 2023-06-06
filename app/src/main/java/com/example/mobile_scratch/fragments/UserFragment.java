@@ -8,11 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-
 import android.widget.ListView;
-
-import android.widget.EditText;
-
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,23 +17,16 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.mobile_scratch.R;
-import com.example.mobile_scratch.activity.HistoryOrderActivity;
 import com.example.mobile_scratch.activity.LoginActivity;
-
+import com.example.mobile_scratch.activity.UserActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import com.google.firebase.auth.FirebaseUser;
-
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -113,6 +102,7 @@ public class UserFragment extends Fragment {
     FirebaseAuth simpleAuth;
 
 
+
     FirebaseUser currentUser;
 
 
@@ -135,6 +125,7 @@ public class UserFragment extends Fragment {
         logout = rootView.findViewById(R.id.logout);
 
 
+        simpleAuth = FirebaseAuth.getInstance();
 
 
         orderList = rootView.findViewById(R.id.listOrder);
@@ -147,9 +138,6 @@ public class UserFragment extends Fragment {
 
 
         System.out.println("CONC");
-
-        simpleAuth = FirebaseAuth.getInstance();
-
         googleSignInClient = GoogleSignIn.getClient(requireActivity(), GoogleSignInOptions.DEFAULT_SIGN_IN);
 
         currentUser = simpleAuth.getCurrentUser();
@@ -181,7 +169,6 @@ public class UserFragment extends Fragment {
             }
 
         });
-
 
         return rootView;
     }
