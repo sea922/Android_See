@@ -44,7 +44,7 @@
 
     <EditText
         android:id="@+id/editTextOldPassword"
-        android:layout_width="match_parent"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:hint="Old Password"
         app:layout_constraintTop_toBottomOf="@id/textViewEmail"
@@ -55,7 +55,7 @@
 
     <EditText
         android:id="@+id/editTextNewPassword"
-        android:layout_width="match_parent"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:hint="New Password"
         app:layout_constraintTop_toBottomOf="@id/editTextOldPassword"
@@ -66,7 +66,7 @@
 
     <Button
         android:id="@+id/buttonChangePassword"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="Change Password"
         app:layout_constraintTop_toBottomOf="@id/editTextNewPassword"
@@ -75,7 +75,7 @@
         android:layout_marginTop="16dp" />
     <Button
         android:id="@+id/buttonHistory"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="History Order"
         app:layout_constraintTop_toBottomOf="@id/buttonChangePassword"
