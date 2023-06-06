@@ -35,10 +35,13 @@ class Order {
     String orderID;
     long price;
 
+    String status;
 
-    public Order(String orderID, long price) {
+
+    public Order(String orderID, long price, String status) {
         this.orderID = orderID;
         this.price = price;
+        this.status = status;
     }
 
     public String getOrderID() {
@@ -47,6 +50,10 @@ class Order {
 
     public long getPrice() {
         return price;
+    }
+
+    public String getStatus() {
+        return status;
     }
 }
 
@@ -85,6 +92,7 @@ class OderListViewAdapter extends BaseAdapter {
         Double amountDolar = ((double) order.getPrice())*1.0 / 100;
 
         ((TextView) viewOrder.findViewById(R.id.textOrderAMount)).setText(String.valueOf(amountDolar));
+        ((TextView) viewOrder.findViewById(R.id.textOrderStatus)).setText(order.getStatus());
         return viewOrder;
     }
 }
@@ -116,7 +124,7 @@ public class UserFragment extends Fragment {
         orderList = rootView.findViewById(R.id.listOrder);
         db = FirebaseFirestore.getInstance();
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        paymentRef = db.collection("customers").document(userID).collection("payments");
+        paymentRef = db.collection("stripe_customers").document(userID).collection("payments");
 
         orderItems = new ArrayList<>();
 
@@ -184,8 +192,11 @@ public class UserFragment extends Fragment {
             task.getDocuments().forEach((snapshot)->{
                 String orderId = snapshot.getId();
                 long amount = (long) snapshot.get("amount");
-
-                Order order = new Order(orderId, amount);
+                String status = "success";
+                if (snapshot.get("error") != null) {
+                    status = "failed";
+                }
+                Order order = new Order(orderId, amount, status);
                 iOrder.onAnOrder(order);
                 Log.d("order list", order.toString());
             });
