@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,7 +25,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -105,6 +108,14 @@ public class UserFragment extends Fragment {
 
     FirebaseUser currentUser;
 
+    TextView nameTextView;
+    TextView emailTextView;
+
+    Button changePassword;
+    Button history;
+    EditText oldPasswordEditText;
+    EditText newPasswordEditText;
+
 
 
     ListView orderList;
@@ -124,6 +135,11 @@ public class UserFragment extends Fragment {
 
         logout = rootView.findViewById(R.id.logout);
 
+        emailTextView = rootView.findViewById(R.id.textViewEmail);
+        changePassword = rootView.findViewById(R.id.buttonChangePassword);
+        oldPasswordEditText = rootView.findViewById(R.id.editTextOldPassword);
+        newPasswordEditText = rootView.findViewById(R.id.editTextNewPassword);
+
 
         simpleAuth = FirebaseAuth.getInstance();
 
@@ -142,6 +158,15 @@ public class UserFragment extends Fragment {
 
         currentUser = simpleAuth.getCurrentUser();
 
+        if (currentUser != null) {
+            String email = currentUser.getEmail();
+
+            emailTextView.setText(email);
+
+            Log.d("UserAcc", "Current user: " + ", " + email);
+        } else {
+            Log.d("UserAcc", "No user login");
+        }
 
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,6 +193,46 @@ public class UserFragment extends Fragment {
                 requireActivity().finish();
             }
 
+        });
+
+        changePassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                String oldPassword = oldPasswordEditText.getText().toString().trim();
+                final String newPassword = newPasswordEditText.getText().toString().trim();
+
+                if (oldPassword.isEmpty() || newPassword.isEmpty()) {
+                    Toast.makeText(requireContext(), "Please enter old and new passwords", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                currentUser.reauthenticate(EmailAuthProvider.getCredential(currentUser.getEmail(), oldPassword))
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+
+                                if (task.isSuccessful()) {
+                                    currentUser.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+
+                                            if (task.isSuccessful()) {
+                                                oldPasswordEditText.setText("");
+                                                newPasswordEditText.setText("");
+                                                Toast.makeText(requireContext(), "Password changed successfully", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(requireContext(), "Failed to change password", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    Toast.makeText(requireContext(), "Authentication failed. Please check your old password", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            }
         });
 
         return rootView;

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -11,24 +10,61 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="20dp">
+
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="151dp"
             android:layout_height="130dp"
-            android:layout_centerHorizontal="true"
             app:srcCompat="@drawable/ic_profile"
             tools:ignore="MissingConstraints" />
+
         <Button
             android:id="@+id/logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:text="Logout"
             android:layout_below="@id/imageView"
-
-
+            android:layout_marginStart="30dp"
+            android:text="Logout"
             tools:ignore="UnknownIdInLayout" />
 
+        <TextView
+            android:id="@+id/textViewEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:text="amdin@gmail.com"
+            android:layout_toRightOf="@id/imageView"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_marginTop="8dp"/>
+
+        <EditText
+            android:id="@+id/editTextNewPassword"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="80dp"
+            android:layout_toRightOf="@id/imageView"
+            android:hint="New Password"
+            android:layout_marginTop="16dp"
+            android:inputType="textPassword"/>
+
+        <EditText
+            android:id="@+id/editTextOldPassword"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/imageView"
+            android:hint="Old Password"
+            android:layout_marginTop="40dp"
+            android:inputType="textPassword"/>
+
+        <Button
+            android:id="@+id/buttonChangePassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="130dp"
+            android:layout_toRightOf="@id/imageView"
+            android:text="Change Password"
+            tools:ignore="UnknownIdInLayout" />
 
     </RelativeLayout>
 
@@ -38,15 +74,12 @@
         android:layout_height="wrap_content"
         android:text="Orders"
         android:textSize="22dp"
-        android:textStyle="bold"
-        />
+        android:textStyle="bold" />
+
     <ListView
         android:id="@+id/listOrder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="20dp"/>
-
-
-
+        android:layout_marginTop="20dp" />
 
 </LinearLayout>

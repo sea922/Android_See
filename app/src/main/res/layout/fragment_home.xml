@@ -19,19 +19,26 @@
             android:background="@android:drawable/editbox_background"
             android:padding="12dp" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonSearch"
-            android:layout_width="wrap_content"
+            android:layout_width="40dp"
+            android:layout_marginLeft="10dp"
             android:layout_height="wrap_content"
-            android:text="Search" />
+            android:onClick="startSpeechToText"
+            app:icon="@drawable/ic_search"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonVoiceInput"
-            android:layout_width="60dp"
+            android:layout_width="40dp"
             android:layout_marginLeft="10dp"
             android:layout_height="wrap_content"
             android:onClick="startSpeechToText"
             app:icon="@drawable/ic_mic"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
             xmlns:app="http://schemas.android.com/apk/res-auto" />
 
 
