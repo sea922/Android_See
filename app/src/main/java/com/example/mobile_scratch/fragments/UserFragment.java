@@ -159,9 +159,11 @@ public class UserFragment extends Fragment {
         currentUser = simpleAuth.getCurrentUser();
 
         if (currentUser != null) {
-            String email = currentUser.getEmail();
+//            String email = currentUser.getEmail();
+            String email = "Phone: 0989999999";
 
             emailTextView.setText(email);
+
 
             Log.d("UserAcc", "Current user: " + ", " + email);
         } else {
