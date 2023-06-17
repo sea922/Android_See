@@ -1,0 +1,96 @@
+﻿<DeploymentSnapshot xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:ddl200="http://schemas.microsoft.com/analysisservices/2010/engine/200" xmlns:ddl200_200="http://schemas.microsoft.com/analysisservices/2010/engine/200/200" xmlns:ddl300="http://schemas.microsoft.com/analysisservices/2011/engine/300" xmlns:ddl300_300="http://schemas.microsoft.com/analysisservices/2011/engine/300/300" xmlns:ddl400="http://schemas.microsoft.com/analysisservices/2012/engine/400" xmlns:ddl400_400="http://schemas.microsoft.com/analysisservices/2012/engine/400/400" xmlns:ddl500="http://schemas.microsoft.com/analysisservices/2013/engine/500" xmlns:ddl500_500="http://schemas.microsoft.com/analysisservices/2013/engine/500/500" xmlns:dwd="http://schemas.microsoft.com/DataWarehouse/Designer/1.0">
+  <Target>
+    <Database>Final_bi_ssas_2</Database>
+    <Server>MINH\SQL_DEV</Server>
+    <ConnectionString>Data Source=MINH\SQL_DEV;Timeout=0</ConnectionString>
+  </Target>
+  <Options>
+    <TransactionalDeployment>false</TransactionalDeployment>
+    <PartitionDeployment>DeployPartitions</PartitionDeployment>
+    <RoleDeployment>DeployRolesRetainMembers</RoleDeployment>
+    <ProcessingOption>Default</ProcessingOption>
+    <OutputScript></OutputScript>
+    <ImpactAnalysisFile></ImpactAnalysisFile>
+    <ConfigurationSettingsDeployment>Deploy</ConfigurationSettingsDeployment>
+    <OptimizationSettingsDeployment>Deploy</OptimizationSettingsDeployment>
+    <WriteBackTableCreation>UseExisting</WriteBackTableCreation>
+  </Options>
+  <Snapshot>
+    <ObjectSnapshots>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.RelationalDataSource</Type>
+        <TimeStamp>U+5VGDR2i1/7DD5YW7VZDMqmneE=6/17/2023 9:35:44 PM6/17/2023 9:35:44 PM</TimeStamp>
+        <ID>
+          <String>Final Bi2</String>
+        </ID>
+      </ObjectSnapshot>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.DataSourceView</Type>
+        <TimeStamp>yWr8pNgramzaiLBX+Qupu6h9RR0=6/17/2023 9:36:07 PM6/17/2023 9:36:06 PM</TimeStamp>
+        <ID>
+          <String>Final Bi2 view</String>
+        </ID>
+      </ObjectSnapshot>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.Dimension</Type>
+        <TimeStamp>dpP0KMxWlJXGxAzHJwIrQfJ3wRw=6/17/2023 9:37:57 PM6/17/2023 9:37:57 PM</TimeStamp>
+        <ID>
+          <String>Artist DIM</String>
+        </ID>
+      </ObjectSnapshot>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.Dimension</Type>
+        <TimeStamp>0BLVXAe/06v3WjafZKEs4dXcW/A=6/17/2023 9:38:57 PM6/17/2023 9:38:57 PM</TimeStamp>
+        <ID>
+          <String>Playlist DIM</String>
+        </ID>
+      </ObjectSnapshot>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.Dimension</Type>
+        <TimeStamp>JVJLMebT5VejlXdQszKW7CLZenQ=6/17/2023 9:39:33 PM6/17/2023 9:39:33 PM</TimeStamp>
+        <ID>
+          <String>Song DIM</String>
+        </ID>
+      </ObjectSnapshot>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.Dimension</Type>
+        <TimeStamp>K/VquEyCeB30ZJgX2sYqJgNtSv4=6/17/2023 9:40:15 PM6/17/2023 9:40:15 PM</TimeStamp>
+        <ID>
+          <String>Key DIM</String>
+        </ID>
+      </ObjectSnapshot>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.Dimension</Type>
+        <TimeStamp>fdsDFBRjZMN+3VyNrrzXgqRjdR4=6/17/2023 9:40:32 PM6/17/2023 9:40:32 PM</TimeStamp>
+        <ID>
+          <String>Mode DIM</String>
+        </ID>
+      </ObjectSnapshot>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.Dimension</Type>
+        <TimeStamp>QzUryqVTCFtlxOsajQ9/J/zqxjU=6/17/2023 9:40:58 PM6/17/2023 9:40:58 PM</TimeStamp>
+        <ID>
+          <String>FACT</String>
+        </ID>
+      </ObjectSnapshot>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.Cube</Type>
+        <TimeStamp>7j/WR26sPEwPf4FOSBbAxsQNbIE=6/17/2023 9:40:59 PM6/17/2023 9:40:58 PMivYjfxeaMgO9ofp7GIcdh4RrtBc=6/17/2023 9:40:58 PM6/17/2023 9:40:58 PM</TimeStamp>
+        <ID>
+          <String>Final Bi2 view</String>
+        </ID>
+      </ObjectSnapshot>
+    </ObjectSnapshots>
+    <DatabaseSnapshot>
+      <Type>Microsoft.AnalysisServices.Database</Type>
+      <TimeStamp>q8qBa82tHlXyhjPNWFtCeVtrdTE=6/17/2023 9:31:50 PM6/17/2023 9:31:49 PM</TimeStamp>
+      <ID>
+        <String>Final_bi_ssas_2</String>
+      </ID>
+    </DatabaseSnapshot>
+    <Granularity>Coarse</Granularity>
+  </Snapshot>
+  <AssemblyLocations />
+  <ProcessingComplete>true</ProcessingComplete>
+  <LastDeployed>2023-06-17T14:41:09.88Z</LastDeployed>
+</DeploymentSnapshot>
